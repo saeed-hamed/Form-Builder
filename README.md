@@ -146,8 +146,6 @@ dotnet run --project src/backend/
 ng serve --project src/frontend/
 
 # Set DB connection (required for API and MCPs)
-export FORMBUILDER_DB_CONNECTION="Server=localhost,1433;Database=FormBuilderDb;..."
-export FORMBUILDER_DB_PASSWORD="Your_strong_password123"
-```
+
 
 API available at `https://localhost:5001` · Frontend at `http://localhost:4200`
