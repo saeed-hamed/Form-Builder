@@ -16,6 +16,8 @@ public class CreateFieldRequest
     public int? LookupId { get; set; }
     public int OrderIndex { get; set; }
     public bool Required { get; set; }
+    public string? Placeholder { get; set; }
+    public string? SubFieldsJson { get; set; }
 }
 
 public class UpdateFieldRequest
@@ -29,6 +31,8 @@ public class UpdateFieldRequest
     public int? LookupId { get; set; }
     public int OrderIndex { get; set; }
     public bool Required { get; set; }
+    public string? Placeholder { get; set; }
+    public string? SubFieldsJson { get; set; }
 }
 
 public class FieldResponse
@@ -41,4 +45,6 @@ public class FieldResponse
     public int? LookupId { get; set; }
     public int OrderIndex { get; set; }
     public bool Required { get; set; }
+    public string? Placeholder { get; set; }
+    public string? SubFieldsJson { get; set; }
 }

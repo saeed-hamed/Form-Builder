@@ -33,7 +33,9 @@ public class FieldService : IFieldService
             request.FieldType,
             request.LookupId,
             request.OrderIndex,
-            request.Required);
+            request.Required,
+            request.Placeholder,
+            request.SubFieldsJson);
         var field = await _repo.GetByIdAsync(id);
         return MapField(field!);
     }
@@ -46,7 +48,9 @@ public class FieldService : IFieldService
             request.FieldType,
             request.LookupId,
             request.OrderIndex,
-            request.Required);
+            request.Required,
+            request.Placeholder,
+            request.SubFieldsJson);
     }
 
     public async Task<bool> DeleteFieldAsync(int fieldId)
@@ -63,6 +67,8 @@ public class FieldService : IFieldService
         FieldType = f.FieldType,
         LookupId = f.LookupId,
         OrderIndex = f.OrderIndex,
-        Required = f.Required
+        Required = f.Required,
+        Placeholder = f.Placeholder,
+        SubFieldsJson = f.SubFieldsJson
     };
 }

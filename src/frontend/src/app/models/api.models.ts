@@ -1,0 +1,97 @@
+export interface ApiResponse<T> {
+  data: T;
+}
+
+export interface LookupValue {
+  lookupValueId: number;
+  lookupId: number;
+  value: string;
+  orderIndex: number;
+}
+
+export interface Lookup {
+  lookupId: number;
+  name: string;
+  values: LookupValue[];
+}
+
+export interface TaskDefinition {
+  taskId: number;
+  name: string;
+  description: string | null;
+}
+
+export interface Form {
+  formId: number;
+  title: string;
+  activeVersionId: number | null;
+  createdAt: string;
+}
+
+export interface FormVersion {
+  versionId: number;
+  formId: number;
+  versionNumber: number;
+  definitionJson: string;
+  createdAt: string;
+  published: boolean;
+}
+
+export interface SubField {
+  key: string;
+  label: string;
+  type: 'text' | 'number' | 'list' | 'yes_no';
+  lookupId?: number | null;
+}
+
+export interface Field {
+  fieldId: number;
+  formVersionId: number;
+  fieldKey: string;
+  label: string;
+  fieldType: 'yes_no' | 'list' | 'date' | 'text' | 'number' | 'repeater';
+  lookupId: number | null;
+  orderIndex: number;
+  required: boolean;
+  placeholder: string | null;
+  subFieldsJson: string | null;
+}
+
+export interface ConditionAction {
+  type: string;
+  target_field: string;
+}
+
+export interface ConditionJsonPayload {
+  operator: string;
+  value: string;
+  actions: ConditionAction[];
+}
+
+export interface ConditionalRule {
+  ruleId: number;
+  formVersionId: number;
+  sourceFieldId: number;
+  sourceFieldKey: string;
+  ruleType: string;
+  conditionJson: string;
+}
+
+export interface TriggerCondition {
+  field: string;
+  operator: string;
+  value: string;
+}
+
+export interface TriggerConditionJson {
+  combinator: 'AND' | 'OR';
+  conditions: TriggerCondition[];
+}
+
+export interface TaskTrigger {
+  triggerId: number;
+  formVersionId: number;
+  taskId: number;
+  taskName: string;
+  conditionJson: string;
+}

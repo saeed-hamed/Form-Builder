@@ -46,8 +46,43 @@ public class FormRepository : IFormRepository
 
     public async Task<bool> DeleteAsync(int formId)
     {
-        var rows = await _db.ExecuteAsync(
-            "DELETE FROM Forms WHERE FormId = @FormId",
+        var rows = await _db.ExecuteAsync("""
+            BEGIN TRANSACTION;
+
+            -- Nullify active version reference first to avoid circular FK
+            UPDATE Forms SET ActiveVersionId = NULL WHERE FormId = @FormId;
+
+            -- Delete submission-level dependents
+            DELETE sv FROM SubmissionValues sv
+                INNER JOIN FormSubmissions fs ON sv.SubmissionId = fs.SubmissionId
+                WHERE fs.FormId = @FormId;
+
+            DELETE st FROM SubmissionTasks st
+                INNER JOIN FormSubmissions fs ON st.SubmissionId = fs.SubmissionId
+                WHERE fs.FormId = @FormId;
+
+            DELETE FROM FormSubmissions WHERE FormId = @FormId;
+
+            -- Delete version-level dependents
+            DELETE cr FROM ConditionalRules cr
+                INNER JOIN FormVersions fv ON cr.FormVersionId = fv.VersionId
+                WHERE fv.FormId = @FormId;
+
+            DELETE tt FROM TaskTriggers tt
+                INNER JOIN FormVersions fv ON tt.FormVersionId = fv.VersionId
+                WHERE fv.FormId = @FormId;
+
+            DELETE f FROM Fields f
+                INNER JOIN FormVersions fv ON f.FormVersionId = fv.VersionId
+                WHERE fv.FormId = @FormId;
+
+            DELETE FROM FormVersions WHERE FormId = @FormId;
+
+            -- Finally delete the form
+            DELETE FROM Forms WHERE FormId = @FormId;
+
+            COMMIT;
+            """,
             new { FormId = formId });
         return rows > 0;
     }

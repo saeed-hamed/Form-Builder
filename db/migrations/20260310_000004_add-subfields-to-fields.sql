@@ -1,0 +1,1 @@
+ALTER TABLE Fields ADD SubFieldsJson NVARCHAR(MAX) NULL;

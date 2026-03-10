@@ -1,0 +1,2 @@
+ALTER TABLE Fields
+    ADD Placeholder NVARCHAR(255) NULL;

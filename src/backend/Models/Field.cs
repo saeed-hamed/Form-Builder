@@ -10,4 +10,6 @@ public class Field
     public int? LookupId { get; set; }
     public int OrderIndex { get; set; }
     public bool Required { get; set; }
+    public string? Placeholder { get; set; }
+    public string? SubFieldsJson { get; set; }
 }

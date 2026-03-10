@@ -16,34 +16,34 @@ public class FieldRepository : IFieldRepository
     public async Task<IEnumerable<Field>> GetByVersionIdAsync(int formVersionId)
     {
         return await _db.QueryAsync<Field>(
-            "SELECT FieldId, FormVersionId, FieldKey, Label, FieldType, LookupId, OrderIndex, Required FROM Fields WHERE FormVersionId = @FormVersionId ORDER BY OrderIndex",
+            "SELECT FieldId, FormVersionId, FieldKey, Label, FieldType, LookupId, OrderIndex, Required, Placeholder, SubFieldsJson FROM Fields WHERE FormVersionId = @FormVersionId ORDER BY OrderIndex",
             new { FormVersionId = formVersionId });
     }
 
     public async Task<Field?> GetByIdAsync(int fieldId)
     {
         return await _db.QuerySingleOrDefaultAsync<Field>(
-            "SELECT FieldId, FormVersionId, FieldKey, Label, FieldType, LookupId, OrderIndex, Required FROM Fields WHERE FieldId = @FieldId",
+            "SELECT FieldId, FormVersionId, FieldKey, Label, FieldType, LookupId, OrderIndex, Required, Placeholder, SubFieldsJson FROM Fields WHERE FieldId = @FieldId",
             new { FieldId = fieldId });
     }
 
-    public async Task<int> CreateAsync(int formVersionId, string fieldKey, string label, string fieldType, int? lookupId, int orderIndex, bool required)
+    public async Task<int> CreateAsync(int formVersionId, string fieldKey, string label, string fieldType, int? lookupId, int orderIndex, bool required, string? placeholder, string? subFieldsJson)
     {
         return await _db.ExecuteScalarAsync<int>("""
-            INSERT INTO Fields (FormVersionId, FieldKey, Label, FieldType, LookupId, OrderIndex, Required)
-            VALUES (@FormVersionId, @FieldKey, @Label, @FieldType, @LookupId, @OrderIndex, @Required);
+            INSERT INTO Fields (FormVersionId, FieldKey, Label, FieldType, LookupId, OrderIndex, Required, Placeholder, SubFieldsJson)
+            VALUES (@FormVersionId, @FieldKey, @Label, @FieldType, @LookupId, @OrderIndex, @Required, @Placeholder, @SubFieldsJson);
             SELECT CAST(SCOPE_IDENTITY() AS INT);
             """,
-            new { FormVersionId = formVersionId, FieldKey = fieldKey, Label = label, FieldType = fieldType, LookupId = lookupId, OrderIndex = orderIndex, Required = required });
+            new { FormVersionId = formVersionId, FieldKey = fieldKey, Label = label, FieldType = fieldType, LookupId = lookupId, OrderIndex = orderIndex, Required = required, Placeholder = placeholder, SubFieldsJson = subFieldsJson });
     }
 
-    public async Task<bool> UpdateAsync(int fieldId, string label, string fieldType, int? lookupId, int orderIndex, bool required)
+    public async Task<bool> UpdateAsync(int fieldId, string label, string fieldType, int? lookupId, int orderIndex, bool required, string? placeholder, string? subFieldsJson)
     {
         var rows = await _db.ExecuteAsync("""
-            UPDATE Fields SET Label = @Label, FieldType = @FieldType, LookupId = @LookupId, OrderIndex = @OrderIndex, Required = @Required
+            UPDATE Fields SET Label = @Label, FieldType = @FieldType, LookupId = @LookupId, OrderIndex = @OrderIndex, Required = @Required, Placeholder = @Placeholder, SubFieldsJson = @SubFieldsJson
             WHERE FieldId = @FieldId
             """,
-            new { FieldId = fieldId, Label = label, FieldType = fieldType, LookupId = lookupId, OrderIndex = orderIndex, Required = required });
+            new { FieldId = fieldId, Label = label, FieldType = fieldType, LookupId = lookupId, OrderIndex = orderIndex, Required = required, Placeholder = placeholder, SubFieldsJson = subFieldsJson });
         return rows > 0;
     }
 
