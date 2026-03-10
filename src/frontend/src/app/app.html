@@ -2,7 +2,7 @@
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-logo">
+    <a routerLink="/dashboard" class="sidebar-logo">
       <div class="sidebar-logo-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="8" height="8" rx="1.5"/>
@@ -12,9 +12,28 @@
         </svg>
       </div>
       <span class="sidebar-logo-text">Form Builder</span>
-    </div>
+    </a>
 
-    <div class="sidebar-section-label">Workspace</div>
+    <!-- Home -->
+    <nav class="sidebar-nav" style="margin-top: 0.75rem; padding-bottom: 0.25rem;">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </span>
+        <span>Dashboard</span>
+      </a>
+    </nav>
+
+    <!-- ADMIN section -->
+    <div class="sidebar-section-label">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+      Admin
+    </div>
 
     <nav class="sidebar-nav">
       <a routerLink="/forms" routerLinkActive="active" class="nav-item">
@@ -51,7 +70,50 @@
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
         </span>
-        <span>Tasks</span>
+        <span>Task Definitions</span>
+      </a>
+    </nav>
+
+    <!-- CLIENT section -->
+    <div class="sidebar-section-label" style="margin-top:0.75rem">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      Client
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/submit" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </span>
+        <span>Submit a Form</span>
+      </a>
+
+      <a routerLink="/my-submissions" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </span>
+        <span>My Submissions</span>
+      </a>
+
+      <a routerLink="/task-board" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="5" height="18" rx="1"/>
+            <rect x="10" y="3" width="5" height="12" rx="1"/>
+            <rect x="17" y="3" width="5" height="15" rx="1"/>
+          </svg>
+        </span>
+        <span>Task Board</span>
       </a>
     </nav>
 
@@ -63,9 +125,28 @@
     </div>
   </aside>
 
-  <!-- Main content -->
-  <main class="main-content">
-    <router-outlet />
-  </main>
+  <!-- Content area: topbar + main -->
+  <div class="content-area">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-platform">Dynamic Form Builder &amp; Task Automation</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div class="user-avatar">A</div>
+          <span class="user-label">Admin</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <router-outlet />
+    </main>
+
+  </div>
 
 </div>

@@ -71,6 +71,24 @@ public class SubmissionService : ISubmissionService
         return result;
     }
 
+    public async Task<IEnumerable<SubmissionResponse>> GetAllAsync()
+    {
+        var submissions = await _submissionRepo.GetAllAsync();
+        var result = new List<SubmissionResponse>();
+        foreach (var s in submissions)
+        {
+            var full = await _submissionRepo.GetByIdAsync(s.SubmissionId);
+            if (full is not null) result.Add(MapToResponse(full));
+        }
+        return result;
+    }
+
+    public Task<IEnumerable<TaskBoardItemResponse>> GetTaskBoardAsync()
+        => _submissionRepo.GetAllTaskBoardAsync();
+
+    public Task<bool> UpdateTaskStatusAsync(int submissionTaskId, string status)
+        => _submissionRepo.UpdateTaskStatusAsync(submissionTaskId, status);
+
     private static SubmissionResponse MapToResponse(SubmissionFullData data) => new()
     {
         SubmissionId = data.Submission.SubmissionId,

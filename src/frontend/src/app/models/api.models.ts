@@ -95,3 +95,34 @@ export interface TaskTrigger {
   taskName: string;
   conditionJson: string;
 }
+
+export interface SubmissionTaskResult {
+  submissionTaskId: number;
+  taskId: number;
+  taskName: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface SubmissionResponse {
+  submissionId: number;
+  formId: number;
+  formVersionId: number;
+  submittedBy: string;
+  submittedAt: string;
+  values: { submissionValueId: number; fieldId: number; fieldKey: string; value: string }[];
+  generatedTasks: SubmissionTaskResult[];
+}
+
+export interface TaskBoardItem {
+  submissionTaskId: number;
+  taskId: number;
+  taskName: string;
+  status: 'Pending' | 'In Progress' | 'Completed';
+  createdAt: string;
+  completedAt: string | null;
+  submissionId: number;
+  formTitle: string;
+  submittedBy: string;
+  submittedAt: string;
+}

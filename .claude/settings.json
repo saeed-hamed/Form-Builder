@@ -1,29 +1,4 @@
 {
-  "mcpServers": {
-    "mssql": {
-      "command": "npx",
-      "args": ["-y", "mcp-mssql-server"],
-      "env": {
-        "MSSQL_HOST": "localhost",
-        "MSSQL_PORT": "1433",
-        "MSSQL_DATABASE": "FormBuilderDb",
-        "MSSQL_USER": "sa",
-        "MSSQL_PASSWORD": "${FORMBUILDER_DB_PASSWORD}",
-        "MSSQL_ENCRYPT": "false",
-        "MSSQL_TRUST_SERVER_CERTIFICATE": "true"
-      }
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp", "--browser", "chromium", "--headless"],
-      "env": {}
-    },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "env": {}
-    }
-  },
   "permissions": {
     "allow": [
       "Bash(node:*)",
@@ -117,5 +92,46 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "csharp-lsp@claude-plugins-official": true
+  },
+  "mcpServers": {
+    "mssql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-mssql-server"
+      ],
+      "env": {
+        "MSSQL_HOST": "localhost",
+        "MSSQL_PORT": "1433",
+        "MSSQL_DATABASE": "FormBuilderDb",
+        "MSSQL_USER": "sa",
+        "MSSQL_PASSWORD": "${FORMBUILDER_DB_PASSWORD}",
+        "MSSQL_ENCRYPT": "false",
+        "MSSQL_TRUST_SERVER_CERTIFICATE": "true"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp",
+        "--browser",
+        "chromium",
+        "--headless"
+      ],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {}
+    }
   }
 }

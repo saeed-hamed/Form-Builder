@@ -1,4 +1,5 @@
 using Dapper;
+using FormBuilder.DTOs;
 using FormBuilder.Models;
 using System.Data;
 
@@ -123,5 +124,37 @@ public class SubmissionRepository : ISubmissionRepository
         return await _db.QueryAsync<FormSubmission>(
             "SELECT SubmissionId, FormId, FormVersionId, SubmittedBy, SubmittedAt FROM FormSubmissions WHERE FormId = @FormId ORDER BY SubmittedAt DESC",
             new { FormId = formId });
+    }
+
+    public async Task<IEnumerable<FormSubmission>> GetAllAsync()
+    {
+        return await _db.QueryAsync<FormSubmission>(
+            "SELECT fs.SubmissionId, fs.FormId, fs.FormVersionId, fs.SubmittedBy, fs.SubmittedAt FROM FormSubmissions fs ORDER BY fs.SubmittedAt DESC");
+    }
+
+    public async Task<IEnumerable<TaskBoardItemResponse>> GetAllTaskBoardAsync()
+    {
+        return await _db.QueryAsync<TaskBoardItemResponse>("""
+            SELECT st.SubmissionTaskId, st.TaskId, t.Name AS TaskName,
+                   st.Status, st.CreatedAt, st.CompletedAt, st.SubmissionId,
+                   f.Title AS FormTitle, fs.SubmittedBy, fs.SubmittedAt
+            FROM SubmissionTasks st
+            JOIN Tasks t ON t.TaskId = st.TaskId
+            JOIN FormSubmissions fs ON fs.SubmissionId = st.SubmissionId
+            JOIN Forms f ON f.FormId = fs.FormId
+            ORDER BY st.CreatedAt DESC
+            """);
+    }
+
+    public async Task<bool> UpdateTaskStatusAsync(int submissionTaskId, string status)
+    {
+        var rows = await _db.ExecuteAsync("""
+            UPDATE SubmissionTasks
+            SET Status = @Status,
+                CompletedAt = CASE WHEN @Status = 'Completed' THEN GETUTCDATE() ELSE NULL END
+            WHERE SubmissionTaskId = @SubmissionTaskId
+            """,
+            new { SubmissionTaskId = submissionTaskId, Status = status });
+        return rows > 0;
     }
 }

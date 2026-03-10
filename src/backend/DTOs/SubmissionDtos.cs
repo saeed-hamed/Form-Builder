@@ -52,3 +52,23 @@ public class SubmissionResponse
     public List<SubmissionValueResponse> Values { get; set; } = new();
     public List<SubmissionTaskResponse> GeneratedTasks { get; set; } = new();
 }
+
+public class TaskBoardItemResponse
+{
+    public int SubmissionTaskId { get; set; }
+    public int TaskId { get; set; }
+    public string TaskName { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public int SubmissionId { get; set; }
+    public string FormTitle { get; set; } = string.Empty;
+    public string SubmittedBy { get; set; } = string.Empty;
+    public DateTime SubmittedAt { get; set; }
+}
+
+public class UpdateTaskStatusRequest
+{
+    [Required]
+    public string Status { get; set; } = string.Empty;
+}

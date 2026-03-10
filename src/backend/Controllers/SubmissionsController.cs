@@ -17,6 +17,14 @@ public class SubmissionsController : ControllerBase
         _formService = formService;
     }
 
+    // GET api/submissions
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var submissions = await _submissionService.GetAllAsync();
+        return Ok(new { data = submissions });
+    }
+
     // POST api/submissions
     [HttpPost]
     public async Task<IActionResult> Submit([FromBody] SubmitFormRequest request)

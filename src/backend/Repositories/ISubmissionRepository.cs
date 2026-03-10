@@ -1,3 +1,4 @@
+using FormBuilder.DTOs;
 using FormBuilder.Models;
 
 namespace FormBuilder.Repositories;
@@ -19,4 +20,7 @@ public interface ISubmissionRepository
     Task<SubmissionFullData> CreateAsync(SubmissionCreateData data);
     Task<SubmissionFullData?> GetByIdAsync(int submissionId);
     Task<IEnumerable<FormSubmission>> GetByFormIdAsync(int formId);
+    Task<IEnumerable<FormSubmission>> GetAllAsync();
+    Task<IEnumerable<TaskBoardItemResponse>> GetAllTaskBoardAsync();
+    Task<bool> UpdateTaskStatusAsync(int submissionTaskId, string status);
 }
