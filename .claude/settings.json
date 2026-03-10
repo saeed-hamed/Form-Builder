@@ -1,0 +1,121 @@
+{
+  "mcpServers": {
+    "mssql": {
+      "command": "npx",
+      "args": ["-y", "mcp-mssql-server"],
+      "env": {
+        "MSSQL_HOST": "localhost",
+        "MSSQL_PORT": "1433",
+        "MSSQL_DATABASE": "FormBuilderDb",
+        "MSSQL_USER": "sa",
+        "MSSQL_PASSWORD": "${FORMBUILDER_DB_PASSWORD}",
+        "MSSQL_ENCRYPT": "false",
+        "MSSQL_TRUST_SERVER_CERTIFICATE": "true"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp", "--browser", "chromium", "--headless"],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {}
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(ng:*)",
+      "Bash(git:*)",
+      "Bash(dotnet:*)",
+      "Bash(sqlcmd:*)",
+      "Read(**)",
+      "Write(src/**)",
+      "Write(db/migrations/**)",
+      "Write(tests/**)",
+      "Edit(src/**)",
+      "Edit(db/migrations/**)",
+      "Edit(tests/**)"
+    ],
+    "deny": [
+      "Write(.env*)",
+      "Write(**/secrets/**)",
+      "Edit(.env*)",
+      "Edit(**/secrets/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const e=JSON.parse(d);const f=e.tool_input&&(e.tool_input.file_path||'');if(f&&/\\.sql$/i.test(f))console.log('[Form Builder] SQL file modified: '+f+'\\nChecklist:\\n  (1) Wrapped in BEGIN TRANSACTION / COMMIT / ROLLBACK?\\n  (2) Uses SCOPE_IDENTITY() for new IDs?\\n  (3) Indexes reviewed? (see CLAUDE.md section 17)\\n  (4) Migration filename: YYYYMMDD_HHMMSS_description.sql');}catch(x){}})\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const e=JSON.parse(d);const payload=JSON.stringify(e.tool_input||'');if(/definition_json|condition_json|trigger.*json/i.test(payload))console.log('[Form Builder] JSON definition content detected.\\nReminder: Run /validate-form-json before committing to verify schema compliance.');}catch(x){}})\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const e=JSON.parse(d);const f=e.tool_input&&(e.tool_input.file_path||'');const content=e.tool_input&&(e.tool_input.content||e.tool_input.new_string||'');if(f&&/\\.component\\.(ts|html)$/i.test(f)&&content){const hardcoded=(content.match(/formControlName=\\\"[a-z_]+\\\"/gi)||[]);if(hardcoded.length>0)console.log('[Form Builder] Hardcoded formControlName detected: '+hardcoded.join(', ')+'\\nFor the dynamic form renderer, use dynamic binding instead: [formControlName]=\\\"field.key\\\"\\nHardcoded bindings break when field_key values change in definition_json.');}}catch(x){}})\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const e=JSON.parse(d);const cmd=e.tool_input&&e.tool_input.command||'';const dangerous=['DROP TABLE','DROP DATABASE','TRUNCATE TABLE','DELETE FROM Forms','DELETE FROM FormVersions','DELETE FROM SubmissionValues','DELETE FROM Fields'];const found=dangerous.filter(p=>new RegExp(p,'i').test(cmd));if(found.length){console.error('[BLOCKED] Dangerous SQL operation detected: '+found.join(', ')+'\\nEnsure a database backup exists and this change has been reviewed.\\nRemove this block in settings.json only if you are certain.');process.exit(2);}}catch(x){}})\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const e=JSON.parse(d);const cmd=e.tool_input&&e.tool_input.command||'';if(/sqlcmd|osql/i.test(cmd)&&/production|prod/i.test(cmd)){console.error('[WARNING] Detected possible production database operation.\\nConfirm this is intentional before proceeding.');}}catch(x){}})\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const e=JSON.parse(d);const cmd=e.tool_input&&e.tool_input.command||'';const versionMutations=['UPDATE.*FormVersions','DELETE.*ConditionalRules','DELETE.*TaskTriggers'];const found=versionMutations.filter(p=>new RegExp(p,'i').test(cmd));if(found.length){console.error('[WARNING] Version-locked data mutation detected: '+found.join(', ')+'\\nIf this form version is published (published=1), these changes corrupt historical submission records.\\nBest practice: clone the version first with /clone-form-version, make changes on the new version.\\nVerify: SELECT published FROM FormVersions WHERE version_id = <id>');}}catch(x){}})\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"console.log('\\n[Form Builder] Session ended. End-of-session checklist:\\n  1. Run any pending DB migrations (db/migrations/)\\n  2. Validate modified definition_json with /validate-form-json\\n  3. Test conditional rules in the Angular form renderer\\n  4. Verify task triggers fire correctly through the submission flow\\n  5. Commit only to src/, db/migrations/, tests/ directories')\""
+          }
+        ]
+      }
+    ]
+  }
+}

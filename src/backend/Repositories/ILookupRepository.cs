@@ -1,0 +1,14 @@
+using FormBuilder.Models;
+
+namespace FormBuilder.Repositories;
+
+public interface ILookupRepository
+{
+    Task<IEnumerable<Lookup>> GetAllAsync();
+    Task<Lookup?> GetByIdAsync(int lookupId);
+    Task<IEnumerable<LookupValue>> GetValuesByLookupIdAsync(int lookupId);
+    Task<int> CreateAsync(string name);
+    Task<bool> DeleteAsync(int lookupId);
+    Task<int> AddValueAsync(int lookupId, string value, int orderIndex);
+    Task<bool> DeleteValueAsync(int lookupValueId);
+}

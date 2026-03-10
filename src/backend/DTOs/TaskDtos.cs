@@ -1,0 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace FormBuilder.DTOs;
+
+public class CreateTaskRequest
+{
+    [Required]
+    public string Name { get; set; } = string.Empty;
+
+    public string? Description { get; set; }
+}
+
+public class TaskResponse
+{
+    public int TaskId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+}

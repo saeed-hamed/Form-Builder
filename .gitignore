@@ -1,0 +1,28 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.csproj.user
+
+# ASP.NET Core
+appsettings.Development.json
+
+# Angular
+node_modules/
+dist/
+.angular/
+
+# Environment / secrets
+.env
+.env.*
+*.local.json
+**/secrets/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/settings.local.json
