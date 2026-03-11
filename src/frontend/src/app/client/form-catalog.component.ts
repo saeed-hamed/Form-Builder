@@ -71,14 +71,14 @@ import { Form } from '../models/api.models';
     .catalog-title {
       font-size: 1.375rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       letter-spacing: -0.02em;
       margin: 0 0 0.25rem;
     }
 
     .catalog-subtitle {
       font-size: 0.8125rem;
-      color: #64748b;
+      color: var(--tx4);
       margin: 0;
     }
 
@@ -87,14 +87,14 @@ import { Form } from '../models/api.models';
       align-items: center;
       gap: 0.75rem;
       padding: 4rem;
-      color: #64748b;
+      color: var(--tx4);
       font-size: 0.9rem;
     }
 
     .spinner {
       width: 20px;
       height: 20px;
-      border: 2px solid #e2e8f0;
+      border: 2px solid var(--bd);
       border-top-color: #3b82f6;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
@@ -126,12 +126,12 @@ import { Form } from '../models/api.models';
       align-items: center;
       gap: 1rem;
       padding: 1rem 1.25rem;
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      background: var(--sf);
+      border: 1px solid var(--bd);
       border-radius: 12px;
       text-decoration: none;
       transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
     .form-card:hover {
@@ -144,7 +144,7 @@ import { Form } from '../models/api.models';
       width: 42px;
       height: 42px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      background: rgba(59,130,246,0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -159,18 +159,18 @@ import { Form } from '../models/api.models';
     .form-card-title {
       font-size: 0.9375rem;
       font-weight: 600;
-      color: #0f172a;
+      color: var(--tx);
       margin: 0 0 0.2rem;
     }
 
     .form-card-meta {
       font-size: 0.75rem;
-      color: #64748b;
+      color: var(--tx4);
       margin: 0;
     }
 
     .form-card-arrow {
-      color: #94a3b8;
+      color: var(--tx3);
       transition: color 0.15s;
     }
 

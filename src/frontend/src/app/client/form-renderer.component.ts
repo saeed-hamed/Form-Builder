@@ -220,7 +220,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       align-items: center;
       gap: 0.375rem;
       font-size: 0.8125rem;
-      color: #64748b;
+      color: var(--tx4);
       text-decoration: none;
       margin-bottom: 1.25rem;
       transition: color 0.15s;
@@ -232,13 +232,13 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       align-items: center;
       gap: 0.75rem;
       padding: 4rem;
-      color: #64748b;
+      color: var(--tx4);
     }
 
     .spinner, .btn-spinner {
       width: 18px;
       height: 18px;
-      border: 2px solid #e2e8f0;
+      border: 2px solid var(--bd);
       border-top-color: #3b82f6;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
@@ -250,9 +250,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .renderer-error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
+      background: var(--error-bg);
+      color: #f87171;
+      border: 1px solid var(--error-border);
       border-radius: 8px;
       padding: 0.75rem 1rem;
       font-size: 0.875rem;
@@ -260,23 +260,23 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
     /* Form shell */
     .form-shell {
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      background: var(--sf);
+      border: 1px solid var(--bd);
       border-radius: 14px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
       overflow: hidden;
     }
 
     .form-shell-header {
       padding: 1.25rem 1.5rem 1rem;
-      border-bottom: 1px solid #f1f5f9;
-      background: #f8fafc;
+      border-bottom: 1px solid var(--bds);
+      background: var(--sf2);
     }
 
     .form-shell-title {
       font-size: 1.125rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       letter-spacing: -0.01em;
       margin: 0;
     }
@@ -289,7 +289,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .fields-divider {
-      border-top: 1px dashed #e2e8f0;
+      border-top: 1px dashed var(--bd);
       margin: 0.25rem 0;
     }
 
@@ -298,7 +298,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     .field-label {
       font-size: 0.8125rem;
       font-weight: 500;
-      color: #374151;
+      color: var(--tx3);
       display: flex;
       align-items: center;
       gap: 0.2rem;
@@ -308,11 +308,11 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
     .field-input {
       padding: 0.5rem 0.75rem;
-      border: 1px solid #d1d5db;
+      border: 1px solid var(--bdi);
       border-radius: 8px;
       font-size: 0.875rem;
-      color: #0f172a;
-      background: #fff;
+      color: var(--tx);
+      background: var(--bg);
       transition: border-color 0.15s, box-shadow 0.15s;
       width: 100%;
       box-sizing: border-box;
@@ -331,16 +331,33 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       align-items: center;
       gap: 0.4rem;
       font-size: 0.875rem;
-      color: #374151;
+      color: var(--tx3);
       cursor: pointer;
       user-select: none;
     }
 
     .radio-option input[type="radio"] {
-      width: 15px;
-      height: 15px;
-      accent-color: #3b82f6;
+      width: 16px;
+      height: 16px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 2px solid var(--bdi);
+      border-radius: 50%;
+      background: var(--bg);
       cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+
+    .radio-option input[type="radio"]:checked {
+      border-color: #3b82f6;
+      background: #3b82f6;
+      box-shadow: inset 0 0 0 3px var(--sf);
+    }
+
+    .radio-option input[type="radio"]:focus-visible {
+      outline: 2px solid rgba(59,130,246,0.4);
+      outline-offset: 2px;
     }
 
     /* Repeater */
@@ -348,9 +365,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
     .rep-no-subfields {
       font-size: 0.8125rem;
-      color: #92400e;
-      background: #fef3c7;
-      border: 1px solid #fde68a;
+      color: var(--warn-color);
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
       border-radius: 6px;
       padding: 0.5rem 0.75rem;
       margin: 0;
@@ -365,10 +382,10 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     .repeater-table th {
       text-align: left;
       font-weight: 500;
-      color: #64748b;
+      color: var(--tx4);
       padding: 0.25rem 0.375rem;
-      border-bottom: 1px solid #e2e8f0;
-      background: #f8fafc;
+      border-bottom: 1px solid var(--bds);
+      background: var(--sf2);
     }
 
     .repeater-table td { padding: 0.25rem 0.375rem; vertical-align: middle; }
@@ -377,40 +394,41 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       width: 100%;
       padding: 0.25rem 0.375rem;
       font-size: 0.8rem;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--bdi);
       border-radius: 4px;
-      background: #fff;
+      background: var(--bg);
+      color: var(--tx);
     }
 
     .rep-remove {
       background: none;
       border: none;
-      color: #e11d48;
+      color: #f87171;
       cursor: pointer;
       font-size: 0.875rem;
       padding: 0.125rem 0.25rem;
       border-radius: 4px;
     }
 
-    .rep-remove:hover { background: #fee2e2; }
+    .rep-remove:hover { background: rgba(225,29,72,0.15); }
 
     .rep-add-btn {
       align-self: flex-start;
       background: none;
-      border: 1px dashed #94a3b8;
-      color: #64748b;
+      border: 1px dashed var(--bdi);
+      color: var(--tx4);
       font-size: 0.8125rem;
       padding: 0.25rem 0.75rem;
       border-radius: 6px;
       cursor: pointer;
     }
 
-    .rep-add-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+    .rep-add-btn:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.1); }
 
     /* Submit row */
     .form-actions {
       padding-top: 0.75rem;
-      border-top: 1px solid #f1f5f9;
+      border-top: 1px solid var(--bds);
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
@@ -418,9 +436,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
     .submit-error {
       font-size: 0.8125rem;
-      color: #dc2626;
-      background: #fee2e2;
-      border: 1px solid #fecaca;
+      color: #f87171;
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
       border-radius: 6px;
       padding: 0.5rem 0.75rem;
       margin: 0;
@@ -448,11 +466,11 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
     /* Success state */
     .success-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      background: var(--sf);
+      border: 1px solid var(--bd);
       border-radius: 14px;
       padding: 2rem 2rem 1.5rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -475,20 +493,20 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     .success-title {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       margin: 0;
     }
 
     .success-sub {
       font-size: 0.875rem;
-      color: #64748b;
+      color: var(--tx4);
       margin: 0;
     }
 
     .success-tasks {
       width: 100%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: var(--sf2);
+      border: 1px solid var(--bd);
       border-radius: 10px;
       padding: 0.875rem 1rem;
       margin-top: 0.5rem;
@@ -498,7 +516,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     .success-tasks-label {
       font-size: 0.75rem;
       font-weight: 600;
-      color: #475569;
+      color: var(--tx4);
       text-transform: uppercase;
       letter-spacing: 0.06em;
       margin: 0 0 0.5rem;
@@ -509,7 +527,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       align-items: center;
       gap: 0.4rem;
       font-size: 0.8125rem;
-      color: #374151;
+      color: var(--tx3);
       padding: 0.3rem 0;
     }
 
@@ -522,13 +540,13 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .task-chip-status.pending {
-      background: #fef3c7;
-      color: #92400e;
+      background: rgba(245,158,11,0.15);
+      color: #f59e0b;
     }
 
     .success-notasks {
       font-size: 0.8125rem;
-      color: #94a3b8;
+      color: var(--tx3);
       margin: 0.25rem 0;
     }
 
@@ -549,16 +567,16 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .btn-secondary-link {
-      color: #475569;
+      color: var(--tx3);
       text-decoration: none;
       padding: 0.5rem 1.25rem;
       border-radius: 8px;
       font-size: 0.875rem;
       font-weight: 500;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--bdi);
     }
 
-    .btn-secondary-link:hover { background: #f8fafc; }
+    .btn-secondary-link:hover { background: var(--sf2); }
   `]
 })
 export class FormRendererComponent implements OnInit {

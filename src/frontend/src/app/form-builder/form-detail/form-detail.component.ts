@@ -16,7 +16,7 @@ import { Form, FormVersion } from '../../models/api.models';
       } @else if (form()) {
         <div class="page-header">
           <div>
-            <a routerLink="/forms" style="color:#64748b;font-size:0.85rem;text-decoration:none">
+            <a routerLink="/forms" style="color:var(--tx4);font-size:0.85rem;text-decoration:none">
               ← Forms
             </a>
             @if (editingTitle()) {
@@ -43,7 +43,7 @@ import { Form, FormVersion } from '../../models/api.models';
           <p class="error">{{ error() }}</p>
         }
 
-        <h3 style="margin-bottom:1rem;font-size:1rem;color:#475569">Versions</h3>
+        <h3 style="margin-bottom:1rem;font-size:1rem;color:var(--tx2)">Versions</h3>
 
         <table class="table">
           <thead>
@@ -81,7 +81,7 @@ import { Form, FormVersion } from '../../models/api.models';
             }
             @if (versions().length === 0) {
               <tr>
-                <td colspan="4" style="text-align:center;color:#94a3b8;padding:2rem">
+                <td colspan="4" style="text-align:center;color:var(--tx3);padding:2rem">
                   No versions yet — create one to start building the form
                 </td>
               </tr>

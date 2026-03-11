@@ -51,7 +51,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
               </div>
               @if (!last) {
                 <div class="flow-connector">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--bdi)">
                     <polyline points="9 18 15 12 9 6"/>
                   </svg>
                 </div>
@@ -63,7 +63,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
 
       <!-- Stats row -->
       <div class="stats-row">
-        <div class="stat-card" style="--c:#3b82f6;--bg:#eff6ff;--cb:#bfdbfe">
+        <div class="stat-card" style="--c:#3b82f6;--bg:rgba(59,130,246,0.12);--cb:rgba(59,130,246,0.3)">
           <div class="stat-icon-wrap">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -76,7 +76,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
           <div class="stat-label">Form Templates</div>
         </div>
 
-        <div class="stat-card" style="--c:#8b5cf6;--bg:#f5f3ff;--cb:#ddd6fe">
+        <div class="stat-card" style="--c:#8b5cf6;--bg:rgba(139,92,246,0.12);--cb:rgba(139,92,246,0.3)">
           <div class="stat-icon-wrap">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="8" y1="6" x2="21" y2="6"/>
@@ -91,7 +91,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
           <div class="stat-label">Lookup Lists</div>
         </div>
 
-        <div class="stat-card" style="--c:#10b981;--bg:#ecfdf5;--cb:#a7f3d0">
+        <div class="stat-card" style="--c:#10b981;--bg:rgba(16,185,129,0.12);--cb:rgba(16,185,129,0.3)">
           <div class="stat-icon-wrap">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 11 12 14 22 4"/>
@@ -102,7 +102,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
           <div class="stat-label">Task Types</div>
         </div>
 
-        <div class="stat-card" style="--c:#f97316;--bg:#fff7ed;--cb:#fed7aa">
+        <div class="stat-card" style="--c:#f97316;--bg:rgba(249,115,22,0.12);--cb:rgba(249,115,22,0.3)">
           <div class="stat-icon-wrap">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="5" height="18" rx="1"/>
@@ -176,14 +176,14 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     .page-title {
       font-size: 1.875rem;
       font-weight: 800;
-      color: #0f172a;
+      color: var(--tx);
       letter-spacing: -0.03em;
       margin: 0 0 0.3rem;
     }
 
     .page-date {
       font-size: 0.875rem;
-      color: #94a3b8;
+      color: var(--tx3);
       margin: 0;
       font-weight: 400;
     }
@@ -192,7 +192,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: #0f172a;
+      background: #3b82f6;
       color: #fff;
       font-size: 0.875rem;
       font-weight: 600;
@@ -202,13 +202,13 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
       letter-spacing: 0.01em;
       transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
       white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(15,23,42,0.2);
+      box-shadow: 0 2px 8px rgba(59,130,246,0.3);
     }
 
     .cta-btn:hover {
-      background: #1e293b;
+      background: #2563eb;
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(15,23,42,0.28);
+      box-shadow: 0 4px 14px rgba(59,130,246,0.4);
     }
 
     /* ── Stats row ──────────────────────────────────────── */
@@ -220,21 +220,21 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     }
 
     .stat-card {
-      background: #ffffff;
+      background: var(--sf);
       border-radius: 16px;
-      border: 1px solid #e4e9f2;
+      border: 1px solid var(--bds);
       border-top: 3px solid var(--c);
       padding: 1.5rem 1.375rem 1.375rem;
       display: flex;
       flex-direction: column;
       gap: 0;
-      box-shadow: 0 2px 8px rgba(15,23,42,0.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       animation: slideUp 0.4s ease both;
       transition: box-shadow 0.2s, transform 0.2s;
     }
 
     .stat-card:hover {
-      box-shadow: 0 6px 20px rgba(15,23,42,0.09);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       transform: translateY(-2px);
     }
 
@@ -263,7 +263,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
 
     .stat-label {
       font-size: 0.875rem;
-      color: #64748b;
+      color: var(--tx4);
       font-weight: 500;
     }
 
@@ -282,14 +282,14 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     .section-title {
       font-size: 1.125rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       letter-spacing: -0.02em;
       margin: 0 0 0.25rem;
     }
 
     .section-sub {
       font-size: 0.875rem;
-      color: #94a3b8;
+      color: var(--tx3);
       margin: 0;
     }
 
@@ -301,15 +301,15 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     }
 
     .feature-card {
-      background: #ffffff;
+      background: var(--sf);
       border-radius: 16px;
-      border: 1px solid #e4e9f2;
+      border: 1px solid var(--bds);
       padding: 1.5rem;
       text-decoration: none;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      box-shadow: 0 2px 8px rgba(15,23,42,0.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       animation: slideUp 0.45s ease both;
       transition: box-shadow 0.22s, transform 0.22s, background 0.22s, border-color 0.22s;
       position: relative;
@@ -349,7 +349,7 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     }
 
     .feature-arrow-icon {
-      color: #cbd5e1;
+      color: var(--bdi);
       transition: color 0.2s, transform 0.2s;
     }
 
@@ -361,13 +361,13 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     .feature-title {
       font-size: 1.0625rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       letter-spacing: -0.01em;
     }
 
     .feature-desc {
       font-size: 0.875rem;
-      color: #64748b;
+      color: var(--tx4);
       line-height: 1.6;
       flex: 1;
     }
@@ -390,11 +390,11 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
 
     /* ── Flow card ──────────────────────────────────────── */
     .flow-card {
-      background: linear-gradient(145deg, #ffffff 0%, #fdf9f4 100%);
+      background: linear-gradient(145deg, var(--bg) 0%, var(--sf) 100%);
       border-radius: 16px;
-      border: 1px solid #e4e9f2;
+      border: 1px solid var(--bds);
       padding: 2.25rem 1.75rem;
-      box-shadow: 0 2px 8px rgba(15,23,42,0.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .flow-steps {
@@ -453,13 +453,13 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     .step-label {
       font-size: 0.9375rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       text-align: center;
     }
 
     .step-desc {
       font-size: 0.8125rem;
-      color: #94a3b8;
+      color: var(--tx3);
       text-align: center;
       line-height: 1.4;
     }
@@ -502,7 +502,7 @@ export class DashboardComponent implements OnInit {
       desc: 'Design intelligent forms with dynamic fields, conditional logic, and structured data collection workflows.',
       link: '/forms',
       color: '#3b82f6',
-      bg: '#eff6ff',
+      bg: 'rgba(59,130,246,0.12)',
       section: 'Admin',
       iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'
     },
@@ -511,7 +511,7 @@ export class DashboardComponent implements OnInit {
       desc: 'Manage reusable dropdown option lists that are shared across multiple form fields and versions.',
       link: '/lookups',
       color: '#8b5cf6',
-      bg: '#f5f3ff',
+      bg: 'rgba(139,92,246,0.12)',
       section: 'Admin',
       iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'
     },
@@ -520,7 +520,7 @@ export class DashboardComponent implements OnInit {
       desc: 'Define the automated tasks that get created when form submission conditions are satisfied by the rule engine.',
       link: '/tasks',
       color: '#10b981',
-      bg: '#ecfdf5',
+      bg: 'rgba(16,185,129,0.12)',
       section: 'Admin',
       iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
     },
@@ -529,7 +529,7 @@ export class DashboardComponent implements OnInit {
       desc: 'Browse and fill out any published form as an end user. Experience the dynamic form renderer in action.',
       link: '/submit',
       color: '#f59e0b',
-      bg: '#fffbeb',
+      bg: 'rgba(245,158,11,0.12)',
       section: 'Client',
       iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>'
     },
@@ -538,7 +538,7 @@ export class DashboardComponent implements OnInit {
       desc: 'Review your submitted forms, see all field values, and track which automated tasks were generated.',
       link: '/my-submissions',
       color: '#06b6d4',
-      bg: '#ecfeff',
+      bg: 'rgba(6,182,212,0.12)',
       section: 'Client',
       iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
     },
@@ -547,7 +547,7 @@ export class DashboardComponent implements OnInit {
       desc: 'Manage generated tasks with an interactive Kanban board. Drag tasks between Pending, In Progress, and Completed.',
       link: '/task-board',
       color: '#f43f5e',
-      bg: '#fff1f2',
+      bg: 'rgba(244,63,94,0.12)',
       section: 'Client',
       iconPath: '<rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/>'
     },
@@ -556,27 +556,27 @@ export class DashboardComponent implements OnInit {
   readonly steps = [
     {
       num: 1, label: 'Build Form', desc: 'Create fields, types & lookups',
-      color: '#3b82f6', bg: '#eff6ff',
+      color: '#3b82f6', bg: 'rgba(59,130,246,0.12)',
       iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'
     },
     {
       num: 2, label: 'Define Rules', desc: 'Conditions & task triggers',
-      color: '#8b5cf6', bg: '#f5f3ff',
+      color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)',
       iconPath: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
     },
     {
       num: 3, label: 'Submit Form', desc: 'User fills out and sends',
-      color: '#10b981', bg: '#ecfdf5',
+      color: '#10b981', bg: 'rgba(16,185,129,0.12)',
       iconPath: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>'
     },
     {
       num: 4, label: 'Engine Fires', desc: 'Rules evaluate in real-time',
-      color: '#f97316', bg: '#fff7ed',
+      color: '#f97316', bg: 'rgba(249,115,22,0.12)',
       iconPath: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'
     },
     {
       num: 5, label: 'Tasks Created', desc: 'Automated actions queued',
-      color: '#f43f5e', bg: '#fff1f2',
+      color: '#f43f5e', bg: 'rgba(244,63,94,0.12)',
       iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
     },
   ];

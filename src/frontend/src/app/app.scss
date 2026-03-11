@@ -1,7 +1,7 @@
 .shell {
   display: flex;
   height: 100vh;
-  background: #f3f5f7;
+  background: var(--bg);
   overflow: hidden;
 }
 
@@ -9,7 +9,7 @@
 .sidebar {
   width: 240px;
   flex-shrink: 0;
-  background: #0f172a;
+  background: var(--bg-sb);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -21,7 +21,7 @@
   align-items: center;
   gap: 0.625rem;
   padding: 1.25rem 1.125rem;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .sidebar-logo-icon {
@@ -39,7 +39,7 @@
 .sidebar-logo-text {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: #f1f5f9;
   letter-spacing: -0.01em;
 }
 
@@ -49,7 +49,7 @@
   gap: 0.375rem;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: #475569;
+  color: #334155;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 1.25rem 1.125rem 0.5rem;
@@ -68,7 +68,7 @@
   gap: 0.625rem;
   padding: 0.5625rem 0.75rem;
   border-radius: 8px;
-  color: #94a3b8;
+  color: #64748b;
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -77,7 +77,7 @@
 
 .nav-item:hover {
   background: rgba(255,255,255,0.05);
-  color: #e2e8f0;
+  color: #c4cdd8;
 }
 
 .nav-item.active {
@@ -96,12 +96,12 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  color: #64748b;
+  color: #3d4a5c;
   transition: color 0.15s;
 }
 
 .nav-item:hover .nav-icon {
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .nav-badge {
@@ -119,7 +119,7 @@
 .sidebar-footer {
   margin-top: auto;
   padding: 1rem 1.125rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 .sidebar-footer-item {
@@ -127,7 +127,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: #475569;
+  color: #334155;
 }
 
 .status-dot {
@@ -152,8 +152,8 @@
 .topbar {
   height: 52px;
   flex-shrink: 0;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--bg-tb);
+  border-bottom: 1px solid var(--bd);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -164,7 +164,7 @@
 .topbar-platform {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--tx4);
   letter-spacing: 0.01em;
 }
 
@@ -172,6 +172,27 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+/* ─── Theme toggle ────────────────────────────────────────── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: none;
+  border: 1px solid var(--bd);
+  color: var(--tx3);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.theme-toggle:hover {
+  background: var(--sf2);
+  color: var(--tx);
+  border-color: var(--bdi);
 }
 
 .topbar-user {
@@ -182,13 +203,13 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s;
-  color: #475569;
+  color: var(--tx3);
   font-size: 0.8125rem;
   font-weight: 500;
 }
 
 .topbar-user:hover {
-  background: #f0f4ee;
+  background: var(--sf2);
 }
 
 .user-avatar {
@@ -207,7 +228,7 @@
 }
 
 .user-label {
-  color: #334155;
+  color: var(--tx2);
 }
 
 /* ─── Main content ────────────────────────────────────────── */
@@ -216,6 +237,7 @@
   overflow-y: auto;
   padding: 2.5rem 6rem;
   position: relative;
+  background: var(--bg);
 }
 
 /* ─── Sidebar logo as link ────────────────────────────────── */

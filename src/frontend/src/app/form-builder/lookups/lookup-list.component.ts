@@ -119,7 +119,7 @@ import { Lookup } from '../../models/api.models';
             }
             @if (lookups().length === 0) {
               <tr>
-                <td colspan="3" style="text-align:center;color:#94a3b8;padding:2rem">
+                <td colspan="3" style="text-align:center;color:var(--tx3);padding:2rem">
                   No lookups yet
                 </td>
               </tr>

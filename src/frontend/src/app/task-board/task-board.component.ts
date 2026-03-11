@@ -5,9 +5,9 @@ import { TaskBoardItem } from '../models/api.models';
 type Status = 'Pending' | 'In Progress' | 'Completed';
 
 const COLUMNS: { status: Status; label: string; color: string; bg: string; border: string; dot: string }[] = [
-  { status: 'Pending',     label: 'Pending',     color: '#92400e', bg: '#fffbeb', border: '#fde68a', dot: '#f59e0b' },
-  { status: 'In Progress', label: 'In Progress', color: '#1e40af', bg: '#eff6ff', border: '#bfdbfe', dot: '#3b82f6' },
-  { status: 'Completed',   label: 'Completed',   color: '#14532d', bg: '#f0fdf4', border: '#bbf7d0', dot: '#22c55e' },
+  { status: 'Pending',     label: 'Pending',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)',  dot: '#f59e0b' },
+  { status: 'In Progress', label: 'In Progress', color: '#60a5fa', bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.3)',  dot: '#3b82f6' },
+  { status: 'Completed',   label: 'Completed',   color: '#4ade80', bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.3)',   dot: '#22c55e' },
 ];
 
 @Component({
@@ -119,7 +119,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
     .board-page {
       padding: 1.5rem 2rem;
       min-height: 100%;
-      background: #f8fafc;
+      background: var(--bg);
     }
 
     .board-header {
@@ -134,14 +134,14 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
     .board-title {
       font-size: 1.375rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       letter-spacing: -0.02em;
       margin: 0 0 0.25rem;
     }
 
     .board-subtitle {
       font-size: 0.8125rem;
-      color: #64748b;
+      color: var(--tx4);
       margin: 0;
     }
 
@@ -170,9 +170,9 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
     }
 
     .board-error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
+      background: var(--error-bg);
+      color: #f87171;
+      border: 1px solid var(--error-border);
       border-radius: 8px;
       padding: 0.75rem 1rem;
       font-size: 0.875rem;
@@ -185,14 +185,14 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
       justify-content: center;
       gap: 0.75rem;
       padding: 4rem;
-      color: #64748b;
+      color: var(--tx4);
       font-size: 0.9rem;
     }
 
     .spinner {
       width: 20px;
       height: 20px;
-      border: 2px solid #e2e8f0;
+      border: 2px solid var(--bd);
       border-top-color: #3b82f6;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
@@ -208,11 +208,11 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
     }
 
     .column {
-      background: #ffffff;
+      background: var(--sf);
       border-radius: 12px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--bds);
       border-top: 3px solid;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
       min-height: 200px;
       transition: box-shadow 0.15s;
     }
@@ -226,7 +226,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
       align-items: center;
       justify-content: space-between;
       padding: 0.875rem 1rem 0.625rem;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid var(--bds);
     }
 
     .column-title {
@@ -269,22 +269,22 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
       align-items: center;
       gap: 0.5rem;
       padding: 2rem 1rem;
-      color: #94a3b8;
+      color: var(--tx5);
       font-size: 0.8rem;
-      border: 2px dashed #e2e8f0;
+      border: 2px dashed var(--bd);
       border-radius: 8px;
       text-align: center;
     }
 
     .task-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      background: var(--sf2);
+      border: 1px solid var(--bd);
       border-radius: 8px;
       display: flex;
       overflow: hidden;
       cursor: grab;
       transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
     .task-card:hover {
@@ -314,7 +314,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
     .card-task-name {
       font-size: 0.875rem;
       font-weight: 600;
-      color: #0f172a;
+      color: var(--tx);
       line-height: 1.3;
     }
 
@@ -329,7 +329,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
       align-items: center;
       gap: 0.3rem;
       font-size: 0.75rem;
-      color: #64748b;
+      color: var(--tx4);
     }
 
     .card-meta-row svg { flex-shrink: 0; opacity: 0.7; }
@@ -343,14 +343,14 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
 
     .card-date {
       font-size: 0.7rem;
-      color: #94a3b8;
+      color: var(--tx3);
     }
 
     .card-completed-badge {
       font-size: 0.7rem;
       font-weight: 600;
-      color: #16a34a;
-      background: #dcfce7;
+      color: #4ade80;
+      background: rgba(34,197,94,0.15);
       padding: 0.1rem 0.4rem;
       border-radius: 4px;
     }

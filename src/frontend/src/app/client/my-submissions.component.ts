@@ -135,14 +135,14 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
     .subs-title {
       font-size: 1.375rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--tx);
       letter-spacing: -0.02em;
       margin: 0 0 0.25rem;
     }
 
     .subs-subtitle {
       font-size: 0.8125rem;
-      color: #64748b;
+      color: var(--tx4);
       margin: 0;
     }
 
@@ -165,13 +165,13 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       align-items: center;
       gap: 0.75rem;
       padding: 4rem;
-      color: #64748b;
+      color: var(--tx4);
     }
 
     .spinner {
       width: 20px;
       height: 20px;
-      border: 2px solid #e2e8f0;
+      border: 2px solid var(--bd);
       border-top-color: #3b82f6;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
@@ -205,11 +205,11 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
     }
 
     .sub-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      background: var(--sf);
+      border: 1px solid var(--bds);
       border-radius: 12px;
       padding: 1rem 1.25rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
       transition: border-color 0.15s;
     }
 
@@ -225,7 +225,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
     .sub-form-title {
       font-size: 0.9375rem;
       font-weight: 600;
-      color: #0f172a;
+      color: var(--tx);
       margin-bottom: 0.25rem;
     }
 
@@ -241,11 +241,11 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       align-items: center;
       gap: 0.25rem;
       font-size: 0.75rem;
-      color: #64748b;
+      color: var(--tx4);
     }
 
     .sub-meta-item svg { opacity: 0.7; }
-    .sub-meta-dot { color: #cbd5e1; font-size: 0.75rem; }
+    .sub-meta-dot { color: var(--bd); font-size: 0.75rem; }
 
     .sub-badges {
       display: flex;
@@ -264,8 +264,8 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       border-radius: 6px;
     }
 
-    .badge-tasks { background: #fef3c7; color: #92400e; }
-    .badge-id { background: #f1f5f9; color: #475569; }
+    .badge-tasks { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .badge-id { background: var(--sf2); color: var(--tx4); }
 
     .sub-tasks {
       display: flex;
@@ -273,7 +273,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       gap: 0.375rem;
       margin-top: 0.625rem;
       padding-top: 0.625rem;
-      border-top: 1px solid #f1f5f9;
+      border-top: 1px solid var(--bds);
     }
 
     .task-pill {
@@ -284,9 +284,9 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       font-weight: 500;
       padding: 0.25rem 0.625rem;
       border-radius: 99px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      color: #374151;
+      background: var(--sf2);
+      border: 1px solid var(--bd);
+      color: var(--tx3);
     }
 
     .task-pill-status {
@@ -296,9 +296,9 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       border-radius: 4px;
     }
 
-    .task-pill--pending .task-pill-status { background: #fef3c7; color: #92400e; }
-    .task-pill--inprogress .task-pill-status { background: #dbeafe; color: #1e40af; }
-    .task-pill--completed .task-pill-status { background: #dcfce7; color: #14532d; }
+    .task-pill--pending .task-pill-status { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .task-pill--inprogress .task-pill-status { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .task-pill--completed .task-pill-status { background: rgba(34,197,94,0.15); color: #4ade80; }
 
     .expand-chevron {
       display: inline-flex;
@@ -306,9 +306,9 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       gap: 0.3rem;
       padding: 0.3rem 0.6rem 0.3rem 0.75rem;
       border-radius: 6px;
-      background: #f1f5f9;
-      color: #64748b;
-      border: 1px solid #e2e8f0;
+      background: var(--sf2);
+      color: var(--tx4);
+      border: 1px solid var(--bds);
       transition: background 0.15s, color 0.15s, border-color 0.15s;
       flex-shrink: 0;
     }
@@ -317,14 +317,14 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       flex-shrink: 0;
     }
     .expand-chevron:hover {
-      background: #dbeafe;
-      color: #3b82f6;
-      border-color: #bfdbfe;
+      background: rgba(59,130,246,0.1);
+      color: #60a5fa;
+      border-color: rgba(59,130,246,0.3);
     }
     .expand-chevron.open {
-      background: #dbeafe;
-      color: #2563eb;
-      border-color: #93c5fd;
+      background: rgba(59,130,246,0.15);
+      color: #60a5fa;
+      border-color: rgba(59,130,246,0.3);
     }
     .expand-chevron.open svg { transform: rotate(180deg); }
 
@@ -338,13 +338,13 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
     .sub-detail {
       margin-top: 0.75rem;
       padding-top: 0.75rem;
-      border-top: 1px solid #f1f5f9;
+      border-top: 1px solid var(--bds);
     }
 
     .sub-detail-header {
       font-size: 0.7rem;
       font-weight: 600;
-      color: #94a3b8;
+      color: var(--tx3);
       text-transform: uppercase;
       letter-spacing: 0.07em;
       margin-bottom: 0.5rem;
@@ -362,27 +362,27 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       font-size: 0.8125rem;
       padding: 0.3rem 0.5rem;
       border-radius: 6px;
-      background: #f8fafc;
+      background: var(--sf2);
     }
 
     .sub-detail-key {
       font-weight: 500;
-      color: #475569;
+      color: var(--tx4);
       min-width: 160px;
       flex-shrink: 0;
     }
 
     .sub-detail-val {
-      color: #0f172a;
+      color: var(--tx);
       word-break: break-word;
     }
 
-    .sub-detail-empty { font-size: 0.8125rem; color: #94a3b8; margin: 0; }
-    .sub-detail-empty-val { color: #94a3b8; font-style: italic; }
+    .sub-detail-empty { font-size: 0.8125rem; color: var(--tx3); margin: 0; }
+    .sub-detail-empty-val { color: var(--tx3); font-style: italic; }
 
     .sub-card.is-expanded {
-      border-color: #bfdbfe;
-      box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+      border-color: rgba(59,130,246,0.4);
+      box-shadow: 0 2px 8px rgba(59,130,246,0.15);
     }
   `]
 })

@@ -25,7 +25,7 @@ const ACTIONS = [
   template: `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-        <h3 style="font-size:1rem;font-weight:600;color:#475569">Conditional UI Rules</h3>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--tx2)">Conditional UI Rules</h3>
         <button class="btn-primary btn-sm" (click)="toggleAddForm()">
           {{ showAddForm() ? 'Cancel' : '+ Add Rule' }}
         </button>
@@ -38,7 +38,7 @@ const ACTIONS = [
       @if (showAddForm()) {
         <div class="card">
           <h3>{{ editingRule() ? 'Edit Rule' : 'New Conditional Rule' }}</h3>
-          <p style="font-size:0.85rem;color:#64748b;margin-bottom:1rem">
+          <p style="font-size:0.85rem;color:var(--tx4);margin-bottom:1rem">
             IF [source field] [operator] [value] THEN [action] [target field]
           </p>
           <form [formGroup]="ruleFg" (ngSubmit)="submitRule()">
@@ -126,7 +126,7 @@ const ACTIONS = [
             }
             @if (rules().length === 0) {
               <tr>
-                <td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem">
+                <td colspan="5" style="text-align:center;color:var(--tx3);padding:2rem">
                   No rules yet
                 </td>
               </tr>

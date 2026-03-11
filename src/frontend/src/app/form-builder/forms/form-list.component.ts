@@ -67,7 +67,7 @@ import { Form } from '../../models/api.models';
             }
             @if (forms().length === 0) {
               <tr>
-                <td colspan="3" style="text-align:center;color:#94a3b8;padding:3rem">
+                <td colspan="3" style="text-align:center;color:var(--tx3);padding:3rem">
                   No forms yet — create your first one
                 </td>
               </tr>

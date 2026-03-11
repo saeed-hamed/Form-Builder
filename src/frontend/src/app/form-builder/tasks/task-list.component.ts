@@ -64,7 +64,7 @@ import { TaskDefinition } from '../../models/api.models';
             }
             @if (tasks().length === 0) {
               <tr>
-                <td colspan="3" style="text-align:center;color:#94a3b8;padding:2rem">
+                <td colspan="3" style="text-align:center;color:var(--tx3);padding:2rem">
                   No tasks yet
                 </td>
               </tr>

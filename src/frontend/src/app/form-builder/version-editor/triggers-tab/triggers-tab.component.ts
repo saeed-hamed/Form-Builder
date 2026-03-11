@@ -19,7 +19,7 @@ const OPERATORS = [
   template: `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-        <h3 style="font-size:1rem;font-weight:600;color:#475569">Task Triggers</h3>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--tx2)">Task Triggers</h3>
         <button class="btn-primary btn-sm" (click)="toggleAddForm()">
           {{ showAddForm() ? 'Cancel' : '+ Add Trigger' }}
         </button>
@@ -53,7 +53,7 @@ const OPERATORS = [
             </div>
 
             <div style="margin-bottom:0.75rem">
-              <div style="font-size:0.85rem;font-weight:500;color:#475569;margin-bottom:0.5rem">
+              <div style="font-size:0.85rem;font-weight:500;color:var(--tx2);margin-bottom:0.5rem">
                 Conditions
               </div>
               <div formArrayName="conditions">
@@ -117,7 +117,7 @@ const OPERATORS = [
                 <td>{{ describeCombinator(trigger) }}</td>
                 <td>
                   @for (cond of describeConditions(trigger); track $index) {
-                    <div style="font-size:0.8rem;color:#475569">{{ cond }}</div>
+                    <div style="font-size:0.8rem;color:var(--tx3)">{{ cond }}</div>
                   }
                 </td>
                 <td>
@@ -128,7 +128,7 @@ const OPERATORS = [
             }
             @if (triggers().length === 0) {
               <tr>
-                <td colspan="4" style="text-align:center;color:#94a3b8;padding:2rem">
+                <td colspan="4" style="text-align:center;color:var(--tx3);padding:2rem">
                   No triggers yet
                 </td>
               </tr>

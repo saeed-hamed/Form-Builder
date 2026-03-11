@@ -18,10 +18,10 @@ type Tab = 'fields' | 'rules' | 'triggers';
         <p class="text-muted">Loading...</p>
       } @else if (version()) {
         <!-- Breadcrumb -->
-        <div style="font-size:0.85rem;color:#64748b;margin-bottom:1rem">
-          <a routerLink="/forms" style="color:#64748b;text-decoration:none">Forms</a>
+        <div style="font-size:0.85rem;color:var(--tx4);margin-bottom:1rem">
+          <a routerLink="/forms" style="color:var(--tx4);text-decoration:none">Forms</a>
           <span> / </span>
-          <a [routerLink]="['/forms', formId()]" style="color:#64748b;text-decoration:none">
+          <a [routerLink]="['/forms', formId()]" style="color:var(--tx4);text-decoration:none">
             Form {{ formId() }}
           </a>
           <span> / v{{ version()!.versionNumber }}</span>
@@ -45,7 +45,7 @@ type Tab = 'fields' | 'rules' | 'triggers';
         </div>
 
         @if (version()!.published) {
-          <p class="error" style="background:#fef9c3;border-color:#fde68a;color:#92400e;margin-bottom:1rem">
+          <p class="error" style="background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn-color);margin-bottom:1rem">
             This version is published. Changes here will affect the active form.
           </p>
         }

@@ -60,7 +60,7 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
               }
               @if (fieldFg.value.fieldType === 'text' || fieldFg.value.fieldType === 'number') {
                 <div class="form-row">
-                  <label>Placeholder <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+                  <label>Placeholder <span style="font-weight:400;color:var(--tx3)">(optional)</span></label>
                   <input formControlName="placeholder" placeholder="e.g. Enter your name" />
                 </div>
               }
@@ -106,7 +106,7 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
                                 }
                               </select>
                             } @else {
-                              <span style="color:#94a3b8;font-size:0.75rem">—</span>
+                              <span style="color:var(--tx3);font-size:0.75rem">—</span>
                             }
                           </td>
                           <td>
@@ -117,7 +117,7 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
                     </tbody>
                   </table>
                 } @else {
-                  <p style="font-size:0.8rem;color:#94a3b8;margin:0.25rem 0">No sub-fields yet — add one above</p>
+                  <p style="font-size:0.8rem;color:var(--tx3);margin:0.25rem 0">No sub-fields yet — add one above</p>
                 }
               </div>
             }
@@ -173,7 +173,7 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
             }
             @if (fields().length === 0) {
               <tr>
-                <td colspan="6" style="text-align:center;color:#94a3b8;padding:2rem">
+                <td colspan="6" style="text-align:center;color:var(--tx3);padding:2rem">
                   No fields yet — add one above
                 </td>
               </tr>
@@ -185,8 +185,8 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
   `,
   styles: [`
     .sub-field-builder {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: var(--sf2);
+      border: 1px solid var(--bd);
       border-radius: 8px;
       padding: 0.75rem;
       margin-bottom: 0.75rem;
@@ -199,9 +199,9 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
     .sub-field-table th {
       text-align: left;
       font-weight: 500;
-      color: #64748b;
+      color: var(--tx4);
       padding: 0.25rem 0.375rem;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--bds);
     }
     .sub-field-table td {
       padding: 0.25rem 0.375rem;
@@ -211,9 +211,10 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
       width: 100%;
       padding: 0.25rem 0.375rem;
       font-size: 0.8rem;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--bdi);
       border-radius: 4px;
-      background: #fff;
+      background: var(--bg);
+      color: var(--tx);
     }
     .sf-input:focus, .sf-select:focus {
       outline: none;
