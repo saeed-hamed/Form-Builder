@@ -170,7 +170,7 @@ import { DirectionService } from '../services/direction.service';
 
     .dash {
       position: relative;
-      animation: fadeUp .35s var(--ease-smooth) both;
+      //animation: fadeUp .35s var(--ease-smooth) both;
       min-height: 100%;
       max-width: 1280px;
       margin-inline: auto;
