@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { SubmissionService } from '../services/submission.service';
 import { FormService } from '../services/form.service';
 import { VersionService } from '../services/version.service';
@@ -8,34 +9,34 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
 @Component({
   selector: 'app-my-submissions',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoPipe],
   template: `
     <div class="subs-page">
       <div class="subs-header">
         <div>
-          <h1 class="subs-title">Submitted Forms</h1>
-          <p class="subs-subtitle">All form submissions across the platform</p>
+          <h1 class="subs-title">{{ 'submissions.title' | transloco }}</h1>
+          <p class="subs-subtitle">{{ 'submissions.subtitle' | transloco }}</p>
         </div>
         <a routerLink="/submit" class="btn-new">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Submit a Form
+          {{ 'submissions.submitNew' | transloco }}
         </a>
       </div>
 
       @if (loading()) {
         <div class="subs-loading">
           <div class="spinner"></div>
-          <span>Loading submissions…</span>
+          <span>{{ 'submissions.loading' | transloco }}</span>
         </div>
       } @else if (submissions().length === 0) {
         <div class="subs-empty">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
-          <p>No submissions yet.</p>
-          <a routerLink="/submit" class="empty-link">Submit your first form →</a>
+          <p>{{ 'submissions.empty' | transloco }}</p>
+          <a routerLink="/submit" class="empty-link">{{ 'submissions.emptyLink' | transloco }}</a>
         </div>
       } @else {
         <div class="subs-list">
@@ -75,7 +76,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
                   }
                   <span class="badge badge-id">#{{ sub.submissionId }}</span>
                   <span class="expand-chevron" [class.open]="expandedId() === sub.submissionId">
-                    <span class="expand-label">{{ expandedId() === sub.submissionId ? 'Hide' : 'View Details' }}</span>
+                    <span class="expand-label">{{ (expandedId() === sub.submissionId ? 'submissions.hide' : 'submissions.viewDetails') | transloco }}</span>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>
@@ -96,7 +97,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
 
               @if (expandedId() === sub.submissionId) {
                 <div class="sub-detail">
-                  <div class="sub-detail-header">Submitted Values</div>
+                  <div class="sub-detail-header">{{ 'submissions.submittedValues' | transloco }}</div>
                   <div class="sub-detail-grid">
                     @for (row of mergedFields(sub); track row.fieldKey) {
                       <div class="sub-detail-row">
@@ -107,7 +108,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
                       </div>
                     }
                     @if (mergedFields(sub).length === 0) {
-                      <p class="sub-detail-empty">Loading fields…</p>
+                      <p class="sub-detail-empty">{{ 'submissions.loadingFields' | transloco }}</p>
                     }
                   </div>
                 </div>
@@ -150,7 +151,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       display: inline-flex;
       align-items: center;
       gap: 0.375rem;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      background: linear-gradient(135deg, #059669, #10b981);
       color: #fff;
       text-decoration: none;
       padding: 0.5rem 1rem;
@@ -172,7 +173,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       width: 20px;
       height: 20px;
       border: 2px solid var(--bd);
-      border-top-color: #3b82f6;
+      border-top-color: #10b981;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
@@ -192,7 +193,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
     .subs-empty p { font-size: 1rem; font-weight: 500; color: #64748b; margin: 0.5rem 0 0; }
 
     .empty-link {
-      color: #3b82f6;
+      color: #10b981;
       text-decoration: none;
       font-size: 0.875rem;
       font-weight: 500;
@@ -297,7 +298,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
     }
 
     .task-pill--pending .task-pill-status { background: rgba(245,158,11,0.15); color: #f59e0b; }
-    .task-pill--inprogress .task-pill-status { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .task-pill--inprogress .task-pill-status { background: rgba(16,185,129,0.15); color: #10b981; }
     .task-pill--completed .task-pill-status { background: rgba(34,197,94,0.15); color: #4ade80; }
 
     .expand-chevron {
@@ -317,14 +318,14 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       flex-shrink: 0;
     }
     .expand-chevron:hover {
-      background: rgba(59,130,246,0.1);
-      color: #60a5fa;
-      border-color: rgba(59,130,246,0.3);
+      background: rgba(16,185,129,0.1);
+      color: #10b981;
+      border-color: rgba(16,185,129,0.3);
     }
     .expand-chevron.open {
-      background: rgba(59,130,246,0.15);
-      color: #60a5fa;
-      border-color: rgba(59,130,246,0.3);
+      background: rgba(16,185,129,0.15);
+      color: #10b981;
+      border-color: rgba(16,185,129,0.3);
     }
     .expand-chevron.open svg { transform: rotate(180deg); }
 
@@ -381,8 +382,8 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
     .sub-detail-empty-val { color: var(--tx3); font-style: italic; }
 
     .sub-card.is-expanded {
-      border-color: rgba(59,130,246,0.4);
-      box-shadow: 0 2px 8px rgba(59,130,246,0.15);
+      border-color: rgba(16,185,129,0.4);
+      box-shadow: 0 2px 8px rgba(16,185,129,0.15);
     }
   `]
 })

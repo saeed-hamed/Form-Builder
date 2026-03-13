@@ -1,27 +1,28 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { VersionService } from '../../../services/version.service';
 import { TaskDefinitionService } from '../../../services/task-definition.service';
 import { TaskTrigger, TriggerConditionJson, TriggerCondition, Field, TaskDefinition } from '../../../models/api.models';
 
 const OPERATORS = [
-  { value: 'equals', label: 'equals' },
-  { value: 'not_equals', label: 'does not equal' },
-  { value: 'contains', label: 'contains' },
-  { value: 'is_empty', label: 'is empty' },
-  { value: 'is_not_empty', label: 'is not empty' },
+  { value: 'equals', label: 'equals', labelKey: 'op.equals' },
+  { value: 'not_equals', label: 'does not equal', labelKey: 'op.not_equals' },
+  { value: 'contains', label: 'contains', labelKey: 'op.contains' },
+  { value: 'is_empty', label: 'is empty', labelKey: 'op.is_empty' },
+  { value: 'is_not_empty', label: 'is not empty', labelKey: 'op.is_not_empty' },
 ];
 
 @Component({
   selector: 'app-triggers-tab',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslocoPipe],
   template: `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-        <h3 style="font-size:1rem;font-weight:600;color:var(--tx2)">Task Triggers</h3>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--tx2)">{{ 'triggers.heading' | transloco }}</h3>
         <button class="btn-primary btn-sm" (click)="toggleAddForm()">
-          {{ showAddForm() ? 'Cancel' : '+ Add Trigger' }}
+          {{ (showAddForm() ? 'common.cancel' : 'triggers.addTrigger') | transloco }}
         </button>
       </div>
 
@@ -31,67 +32,67 @@ const OPERATORS = [
 
       @if (showAddForm()) {
         <div class="card">
-          <h3>{{ editingTrigger() ? 'Edit Trigger' : 'New Task Trigger' }}</h3>
+          <h3>{{ (editingTrigger() ? 'triggers.editTrigger' : 'triggers.newTrigger') | transloco }}</h3>
           <form [formGroup]="triggerFg" (ngSubmit)="submitTrigger()">
             <div class="form-grid-2">
               <div class="form-row">
-                <label>Task to Create</label>
+                <label>{{ 'triggers.taskToCreate' | transloco }}</label>
                 <select formControlName="taskId">
-                  <option [value]="0" disabled>Select task...</option>
+                  <option [value]="0" disabled>{{ 'triggers.selectTask' | transloco }}</option>
                   @for (t of tasks(); track t.taskId) {
                     <option [value]="t.taskId">{{ t.name }}</option>
                   }
                 </select>
               </div>
               <div class="form-row">
-                <label>Logical Combinator</label>
+                <label>{{ 'triggers.combinator' | transloco }}</label>
                 <select formControlName="combinator">
-                  <option value="AND">AND — all conditions must match</option>
-                  <option value="OR">OR — any condition must match</option>
+                  <option value="AND">{{ 'triggers.combinatorAnd' | transloco }}</option>
+                  <option value="OR">{{ 'triggers.combinatorOr' | transloco }}</option>
                 </select>
               </div>
             </div>
 
             <div style="margin-bottom:0.75rem">
               <div style="font-size:0.85rem;font-weight:500;color:var(--tx2);margin-bottom:0.5rem">
-                Conditions
+                {{ 'triggers.conditions' | transloco }}
               </div>
               <div formArrayName="conditions">
                 @for (ctrl of conditionControls; track $index; let i = $index) {
                   <div [formGroupName]="i" class="condition-row" style="margin-bottom:0.5rem">
                     <select formControlName="field">
-                      <option value="" disabled>Field...</option>
+                      <option value="" disabled>{{ 'triggers.selectField' | transloco }}</option>
                       @for (f of fields(); track f.fieldId) {
                         <option [value]="f.fieldKey">{{ f.label }}</option>
                       }
                     </select>
                     <select formControlName="operator">
                       @for (op of operators; track op.value) {
-                        <option [value]="op.value">{{ op.label }}</option>
+                        <option [value]="op.value">{{ op.labelKey | transloco }}</option>
                       }
                     </select>
-                    <input formControlName="value" placeholder="value" />
+                    <input formControlName="value" [placeholder]="'triggers.valuePlaceholder' | transloco" />
                     <button
                       type="button"
                       class="btn-danger btn-sm"
                       (click)="removeCondition(i)"
                       [disabled]="conditionControls.length === 1"
                       style="white-space:nowrap"
-                    >Remove</button>
+                    >{{ 'triggers.remove' | transloco }}</button>
                   </div>
                 }
               </div>
               <button type="button" class="btn-secondary btn-sm" (click)="addCondition()">
-                + Add Condition
+                {{ 'triggers.addCondition' | transloco }}
               </button>
             </div>
 
             <div class="flex-row" style="margin-top:0.5rem">
               <button type="submit" class="btn-primary" [disabled]="triggerFg.invalid || saving()">
-                {{ editingTrigger() ? 'Save Changes' : 'Add Trigger' }}
+                {{ (editingTrigger() ? 'triggers.saveChanges' : 'triggers.addBtn') | transloco }}
               </button>
               @if (editingTrigger()) {
-                <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+                <button type="button" class="btn-secondary" (click)="cancelEdit()">{{ 'common.cancel' | transloco }}</button>
               }
             </div>
           </form>
@@ -99,15 +100,15 @@ const OPERATORS = [
       }
 
       @if (loading()) {
-        <p class="text-muted">Loading...</p>
+        <p class="text-muted">{{ 'common.loading' | transloco }}</p>
       } @else {
         <table class="table">
           <thead>
             <tr>
-              <th>Task</th>
-              <th>Combinator</th>
-              <th>Conditions</th>
-              <th>Actions</th>
+              <th>{{ 'triggers.colTask' | transloco }}</th>
+              <th>{{ 'triggers.colCombinator' | transloco }}</th>
+              <th>{{ 'triggers.colConditions' | transloco }}</th>
+              <th>{{ 'common.actions' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
@@ -121,15 +122,15 @@ const OPERATORS = [
                   }
                 </td>
                 <td>
-                  <button class="btn-sm btn-secondary" (click)="editTrigger(trigger)">Edit</button>
-                  <button class="btn-sm btn-danger" (click)="deleteTrigger(trigger.triggerId)">Delete</button>
+                  <button class="btn-sm btn-secondary" (click)="editTrigger(trigger)">{{ 'common.edit' | transloco }}</button>
+                  <button class="btn-sm btn-danger" (click)="deleteTrigger(trigger.triggerId)">{{ 'common.delete' | transloco }}</button>
                 </td>
               </tr>
             }
             @if (triggers().length === 0) {
               <tr>
                 <td colspan="4" style="text-align:center;color:var(--tx3);padding:2rem">
-                  No triggers yet
+                  {{ 'triggers.empty' | transloco }}
                 </td>
               </tr>
             }

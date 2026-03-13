@@ -23,7 +23,7 @@
             <polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
         </span>
-        <span>Dashboard</span>
+        <span>{{ 'nav.dashboard' | transloco }}</span>
       </a>
     </nav>
 
@@ -32,7 +32,7 @@
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
       </svg>
-      Admin
+      {{ 'nav.admin' | transloco }}
     </div>
 
     <nav class="sidebar-nav">
@@ -46,7 +46,7 @@
             <polyline points="10 9 9 9 8 9"/>
           </svg>
         </span>
-        <span>Form Templates</span>
+        <span>{{ 'nav.forms' | transloco }}</span>
       </a>
 
       <a routerLink="/lookups" routerLinkActive="active" class="nav-item">
@@ -60,7 +60,7 @@
             <line x1="3" y1="18" x2="3.01" y2="18"/>
           </svg>
         </span>
-        <span>Lookups</span>
+        <span>{{ 'nav.lookups' | transloco }}</span>
       </a>
 
       <a routerLink="/tasks" routerLinkActive="active" class="nav-item">
@@ -70,7 +70,7 @@
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
         </span>
-        <span>Task Definitions</span>
+        <span>{{ 'nav.tasks' | transloco }}</span>
       </a>
     </nav>
 
@@ -79,7 +79,7 @@
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
       </svg>
-      Client
+      {{ 'nav.client' | transloco }}
     </div>
 
     <nav class="sidebar-nav">
@@ -92,7 +92,7 @@
             <line x1="9" y1="15" x2="15" y2="15"/>
           </svg>
         </span>
-        <span>Submit a Form</span>
+        <span>{{ 'nav.submit' | transloco }}</span>
       </a>
 
       <a routerLink="/my-submissions" routerLinkActive="active" class="nav-item">
@@ -102,7 +102,7 @@
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
         </span>
-        <span>My Submissions</span>
+        <span>{{ 'nav.submissions' | transloco }}</span>
       </a>
 
       <a routerLink="/task-board" routerLinkActive="active" class="nav-item">
@@ -113,14 +113,14 @@
             <rect x="17" y="3" width="5" height="15" rx="1"/>
           </svg>
         </span>
-        <span>Task Board</span>
+        <span>{{ 'nav.taskBoard' | transloco }}</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
       <div class="sidebar-footer-item">
         <span class="status-dot"></span>
-        API Connected
+        {{ 'topbar.apiConnected' | transloco }}
       </div>
     </div>
   </aside>
@@ -130,9 +130,12 @@
 
     <header class="topbar">
       <div class="topbar-left">
-        <span class="topbar-platform">Dynamic Form Builder &amp; Task Automation</span>
+        <span class="topbar-platform">{{ 'topbar.title' | transloco }}</span>
       </div>
       <div class="topbar-right">
+        <button class="lang-toggle" (click)="dir.toggle()" [title]="dir.isRtl() ? 'Switch to English' : 'التبديل إلى العربية'">
+          {{ dir.isRtl() ? 'EN' : 'ع' }}
+        </button>
         <button class="theme-toggle" (click)="theme.toggle()" [title]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
           @if (theme.isDark()) {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

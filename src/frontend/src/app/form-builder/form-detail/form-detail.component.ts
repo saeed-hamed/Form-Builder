@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormService } from '../../services/form.service';
 import { VersionService } from '../../services/version.service';
 import { Form, FormVersion } from '../../models/api.models';
@@ -8,22 +9,22 @@ import { Form, FormVersion } from '../../models/api.models';
 @Component({
   selector: 'app-form-detail',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, TranslocoPipe],
   template: `
     <div class="page">
       @if (loading()) {
-        <p class="text-muted">Loading...</p>
+        <p class="text-muted">{{ 'common.loading' | transloco }}</p>
       } @else if (form()) {
         <div class="page-header">
           <div>
             <a routerLink="/forms" style="color:var(--tx4);font-size:0.85rem;text-decoration:none">
-              ← Forms
+              ← {{ 'editor.back' | transloco }}
             </a>
             @if (editingTitle()) {
               <form [formGroup]="titleFg" (ngSubmit)="saveTitle()" style="display:flex;gap:0.5rem;margin-top:0.5rem">
                 <input formControlName="title" style="font-size:1.2rem;font-weight:700;max-width:360px" />
-                <button type="submit" class="btn-primary btn-sm">Save</button>
-                <button type="button" class="btn-secondary btn-sm" (click)="editingTitle.set(false)">Cancel</button>
+                <button type="submit" class="btn-primary btn-sm">{{ 'common.save' | transloco }}</button>
+                <button type="button" class="btn-secondary btn-sm" (click)="editingTitle.set(false)">{{ 'common.cancel' | transloco }}</button>
               </form>
             } @else {
               <h1 style="margin-top:0.5rem">
@@ -32,26 +33,26 @@ import { Form, FormVersion } from '../../models/api.models';
                   class="btn-secondary btn-sm"
                   style="font-size:0.75rem;margin-left:0.75rem"
                   (click)="startEditTitle()"
-                >Edit</button>
+                >{{ 'common.edit' | transloco }}</button>
               </h1>
             }
           </div>
-          <button class="btn-primary" (click)="createVersion()">+ New Version</button>
+          <button class="btn-primary" (click)="createVersion()">{{ 'detail.newVersion' | transloco }}</button>
         </div>
 
         @if (error()) {
           <p class="error">{{ error() }}</p>
         }
 
-        <h3 style="margin-bottom:1rem;font-size:1rem;color:var(--tx2)">Versions</h3>
+        <h3 style="margin-bottom:1rem;font-size:1rem;color:var(--tx2)">{{ 'detail.versions' | transloco }}</h3>
 
         <table class="table">
           <thead>
             <tr>
-              <th>Version #</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
+              <th>{{ 'detail.colVersion' | transloco }}</th>
+              <th>{{ 'detail.colStatus' | transloco }}</th>
+              <th>{{ 'detail.colCreated' | transloco }}</th>
+              <th>{{ 'common.actions' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
@@ -60,9 +61,9 @@ import { Form, FormVersion } from '../../models/api.models';
                 <td>v{{ v.versionNumber }}</td>
                 <td>
                   @if (v.published) {
-                    <span class="badge badge-green">Published</span>
+                    <span class="badge badge-green">{{ 'editor.published' | transloco }}</span>
                   } @else {
-                    <span class="badge badge-yellow">Draft</span>
+                    <span class="badge badge-yellow">{{ 'editor.draft' | transloco }}</span>
                   }
                 </td>
                 <td>{{ formatDate(v.createdAt) }}</td>
@@ -70,10 +71,10 @@ import { Form, FormVersion } from '../../models/api.models';
                   <a
                     class="btn-sm btn-secondary"
                     [routerLink]="['/forms', formId(), 'versions', v.versionId]"
-                  >Edit</a>
+                  >{{ 'common.edit' | transloco }}</a>
                   @if (!v.published) {
                     <button class="btn-sm btn-primary" (click)="publish(v)">
-                      Publish
+                      {{ 'detail.publish' | transloco }}
                     </button>
                   }
                 </td>
@@ -82,7 +83,7 @@ import { Form, FormVersion } from '../../models/api.models';
             @if (versions().length === 0) {
               <tr>
                 <td colspan="4" style="text-align:center;color:var(--tx3);padding:2rem">
-                  No versions yet — create one to start building the form
+                  {{ 'detail.emptyVersions' | transloco }}
                 </td>
               </tr>
             }

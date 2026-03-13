@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { VersionService } from '../../../services/version.service';
 import { LookupService } from '../../../services/lookup.service';
 import { Field, Lookup, SubField } from '../../../models/api.models';
@@ -7,13 +8,13 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
 @Component({
   selector: 'app-fields-tab',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslocoPipe],
   template: `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-        <h3 style="font-size:1rem;font-weight:600;color:#475569">Fields</h3>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--tx2)">{{ 'fields.heading' | transloco }}</h3>
         <button class="btn-primary btn-sm" (click)="toggleAddForm()">
-          {{ showAddForm() ? 'Cancel' : '+ Add Field' }}
+          {{ (showAddForm() ? 'common.cancel' : 'fields.addField') | transloco }}
         </button>
       </div>
 
@@ -23,35 +24,39 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
 
       @if (showAddForm()) {
         <div class="card">
-          <h3>{{ editingField() ? 'Edit Field' : 'New Field' }}</h3>
+          <h3>{{ (editingField() ? 'fields.editField' : 'fields.newField') | transloco }}</h3>
           <form [formGroup]="fieldFg" (ngSubmit)="submitField()">
             <div class="form-grid-2">
               <div class="form-row">
-                <label>Field Key (snake_case)</label>
-                <input formControlName="fieldKey" placeholder="e.g. has_work" [attr.readonly]="editingField() ? true : null" />
+                <label>{{ 'fields.keyLabel' | transloco }}</label>
+                <input formControlName="fieldKey" [placeholder]="'fields.keyPlaceholder' | transloco" [attr.readonly]="editingField() ? true : null" />
               </div>
               <div class="form-row">
-                <label>Label</label>
-                <input formControlName="label" placeholder="e.g. Do you have work?" />
+                <label>{{ 'fields.labelLabel' | transloco }} <span class="lang-badge">EN</span></label>
+                <input formControlName="label" [placeholder]="'fields.labelPlaceholder' | transloco" />
               </div>
+            </div>
+            <div class="form-row">
+              <label>{{ 'fields.labelAr' | transloco }} <span class="lang-badge lang-badge--ar">AR</span></label>
+              <input formControlName="labelAr" dir="rtl" placeholder="مثال: هل لديك عمل؟" />
             </div>
             <div class="form-grid-2">
               <div class="form-row">
-                <label>Type</label>
+                <label>{{ 'fields.typeLabel' | transloco }}</label>
                 <select formControlName="fieldType" (change)="onTypeChange()">
-                  <option value="yes_no">Yes / No</option>
-                  <option value="list">List (Lookup)</option>
-                  <option value="date">Date</option>
-                  <option value="text">Text</option>
-                  <option value="number">Number</option>
-                  <option value="repeater">Repeater (multiple rows)</option>
+                  <option value="yes_no">{{ 'fieldType.yes_no' | transloco }}</option>
+                  <option value="list">{{ 'fieldType.list' | transloco }}</option>
+                  <option value="date">{{ 'fieldType.date' | transloco }}</option>
+                  <option value="text">{{ 'fieldType.text' | transloco }}</option>
+                  <option value="number">{{ 'fieldType.number' | transloco }}</option>
+                  <option value="repeater">{{ 'fieldType.repeater' | transloco }}</option>
                 </select>
               </div>
               @if (fieldFg.value.fieldType === 'list') {
                 <div class="form-row">
-                  <label>Lookup</label>
+                  <label>{{ 'fields.lookupLabel' | transloco }}</label>
                   <select formControlName="lookupId">
-                    <option [value]="null">Select lookup...</option>
+                    <option [value]="null">{{ 'fields.lookupSelect' | transloco }}</option>
                     @for (l of lookups(); track l.lookupId) {
                       <option [value]="l.lookupId">{{ l.name }}</option>
                     }
@@ -60,8 +65,8 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
               }
               @if (fieldFg.value.fieldType === 'text' || fieldFg.value.fieldType === 'number') {
                 <div class="form-row">
-                  <label>Placeholder <span style="font-weight:400;color:var(--tx3)">(optional)</span></label>
-                  <input formControlName="placeholder" placeholder="e.g. Enter your name" />
+                  <label>{{ 'fields.placeholderLabel' | transloco }} <span style="font-weight:400;color:var(--tx3)">{{ 'fields.placeholderOptional' | transloco }}</span></label>
+                  <input formControlName="placeholder" [placeholder]="'fields.phInputPlaceholder' | transloco" />
                 </div>
               }
             </div>
@@ -69,18 +74,18 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
             @if (fieldFg.value.fieldType === 'repeater') {
               <div class="sub-field-builder">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
-                  <label style="font-size:0.8125rem;font-weight:500;color:#374151">Sub-fields</label>
-                  <button type="button" class="btn-sm btn-secondary" (click)="addSubField()">+ Add Sub-field</button>
+                  <label style="font-size:0.8125rem;font-weight:500;color:var(--tx3)">{{ 'fields.subFields' | transloco }}</label>
+                  <button type="button" class="btn-sm btn-secondary" (click)="addSubField()">{{ 'fields.addSubField' | transloco }}</button>
                 </div>
 
                 @if (subFields().length > 0) {
                   <table class="sub-field-table">
                     <thead>
                       <tr>
-                        <th>Key</th>
-                        <th>Label</th>
-                        <th>Type</th>
-                        <th>Lookup</th>
+                        <th>{{ 'fields.colKey' | transloco }}</th>
+                        <th>{{ 'fields.colLabel' | transloco }}</th>
+                        <th>{{ 'fields.colType' | transloco }}</th>
+                        <th>{{ 'fields.lookupLabel' | transloco }}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -91,10 +96,10 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
                           <td><input class="sf-input" [value]="sf.label" (input)="updateSubField(i, 'label', $any($event.target).value)" placeholder="e.g. Name" /></td>
                           <td>
                             <select class="sf-select" [value]="sf.type" (change)="updateSubField(i, 'type', $any($event.target).value)">
-                              <option value="text">Text</option>
-                              <option value="number">Number</option>
-                              <option value="list">List</option>
-                              <option value="yes_no">Yes/No</option>
+                              <option value="text">{{ 'fieldType.text' | transloco }}</option>
+                              <option value="number">{{ 'fieldType.number' | transloco }}</option>
+                              <option value="list">{{ 'fieldType.list' | transloco }}</option>
+                              <option value="yes_no">{{ 'fieldType.yes_no' | transloco }}</option>
                             </select>
                           </td>
                           <td>
@@ -117,21 +122,21 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
                     </tbody>
                   </table>
                 } @else {
-                  <p style="font-size:0.8rem;color:var(--tx3);margin:0.25rem 0">No sub-fields yet — add one above</p>
+                  <p style="font-size:0.8rem;color:var(--tx3);margin:0.25rem 0">{{ 'fields.noSubFields' | transloco }}</p>
                 }
               </div>
             }
 
             <div class="form-row" style="flex-direction:row;align-items:center;gap:0.5rem">
               <input type="checkbox" formControlName="required" id="req" style="width:auto" />
-              <label for="req" style="margin:0">Required</label>
+              <label for="req" style="margin:0">{{ 'fields.required' | transloco }}</label>
             </div>
             <div class="flex-row" style="margin-top:0.5rem">
               <button type="submit" class="btn-primary" [disabled]="fieldFg.invalid">
-                {{ editingField() ? 'Save Changes' : 'Add Field' }}
+                {{ (editingField() ? 'fields.saveChanges' : 'fields.addBtn') | transloco }}
               </button>
               @if (editingField()) {
-                <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+                <button type="button" class="btn-secondary" (click)="cancelEdit()">{{ 'common.cancel' | transloco }}</button>
               }
             </div>
           </form>
@@ -139,17 +144,17 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
       }
 
       @if (loading()) {
-        <p class="text-muted">Loading...</p>
+        <p class="text-muted">{{ 'common.loading' | transloco }}</p>
       } @else {
         <table class="table">
           <thead>
             <tr>
-              <th>Order</th>
-              <th>Key</th>
-              <th>Label</th>
-              <th>Type</th>
-              <th>Required</th>
-              <th>Actions</th>
+              <th>{{ 'fields.colOrder' | transloco }}</th>
+              <th>{{ 'fields.colKey' | transloco }}</th>
+              <th>{{ 'fields.colLabel' | transloco }}</th>
+              <th>{{ 'fields.colType' | transloco }}</th>
+              <th>{{ 'fields.colRequired' | transloco }}</th>
+              <th>{{ 'common.actions' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
@@ -163,18 +168,18 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
                 </td>
                 <td><code style="font-size:0.8rem">{{ field.fieldKey }}</code></td>
                 <td>{{ field.label }}</td>
-                <td>{{ typeLabel(field.fieldType) }}</td>
-                <td>{{ field.required ? 'Yes' : '—' }}</td>
+                <td>{{ typeLabel(field.fieldType) | transloco }}</td>
+                <td>{{ (field.required ? 'common.yes' : 'common.dash') | transloco }}</td>
                 <td>
-                  <button class="btn-sm btn-secondary" (click)="editField(field)">Edit</button>
-                  <button class="btn-sm btn-danger" (click)="deleteField(field.fieldId)">Delete</button>
+                  <button class="btn-sm btn-secondary" (click)="editField(field)">{{ 'common.edit' | transloco }}</button>
+                  <button class="btn-sm btn-danger" (click)="deleteField(field.fieldId)">{{ 'common.delete' | transloco }}</button>
                 </td>
               </tr>
             }
             @if (fields().length === 0) {
               <tr>
                 <td colspan="6" style="text-align:center;color:var(--tx3);padding:2rem">
-                  No fields yet — add one above
+                  {{ 'fields.empty' | transloco }}
                 </td>
               </tr>
             }
@@ -218,7 +223,31 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
     }
     .sf-input:focus, .sf-select:focus {
       outline: none;
-      border-color: #3b82f6;
+      border-color: #10b981;
+    }
+    .lang-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(16,185,129,0.15);
+      color: #059669;
+      vertical-align: middle;
+      margin-inline-start: 4px;
+      letter-spacing: 0.05em;
+    }
+    :host-context(.light-theme) .lang-badge {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .lang-badge--ar {
+      background: rgba(245,158,11,0.15);
+      color: #d97706;
+    }
+    :host-context(.light-theme) .lang-badge--ar {
+      background: #fef3c7;
+      color: #92400e;
     }
   `]
 })
@@ -240,6 +269,7 @@ export class FieldsTabComponent implements OnInit {
   fieldFg = this.fb.group({
     fieldKey: ['', Validators.required],
     label: ['', Validators.required],
+    labelAr: [null as string | null],
     fieldType: ['yes_no', Validators.required],
     lookupId: [null as number | null],
     required: [false],
@@ -326,6 +356,7 @@ export class FieldsTabComponent implements OnInit {
     if (editing) {
       this.versionService.updateField(this.versionId, editing.fieldId, {
         label: v.label!,
+        labelAr: v.labelAr ?? null,
         fieldType: v.fieldType!,
         lookupId: v.fieldType === 'list' ? (v.lookupId ?? null) : null,
         orderIndex: editing.orderIndex,
@@ -341,6 +372,7 @@ export class FieldsTabComponent implements OnInit {
       this.versionService.createField(this.versionId, {
         fieldKey: v.fieldKey!,
         label: v.label!,
+        labelAr: v.labelAr ?? null,
         fieldType: v.fieldType!,
         lookupId: v.fieldType === 'list' ? (v.lookupId ?? null) : null,
         orderIndex: maxIndex + 1,
@@ -365,6 +397,7 @@ export class FieldsTabComponent implements OnInit {
     this.fieldFg.patchValue({
       fieldKey: field.fieldKey,
       label: field.label,
+      labelAr: field.labelAr,
       fieldType: field.fieldType,
       lookupId: field.lookupId,
       required: field.required,
@@ -423,7 +456,7 @@ export class FieldsTabComponent implements OnInit {
       const f = toUpdate[i];
       const newIdx = sorted.indexOf(f);
       this.versionService.updateField(this.versionId, f.fieldId, {
-        label: f.label, fieldType: f.fieldType, lookupId: f.lookupId,
+        label: f.label, labelAr: f.labelAr, fieldType: f.fieldType, lookupId: f.lookupId,
         orderIndex: newIdx, required: f.required, placeholder: f.placeholder,
         subFieldsJson: f.subFieldsJson ?? null
       }).subscribe({
@@ -435,9 +468,6 @@ export class FieldsTabComponent implements OnInit {
   }
 
   typeLabel(type: string): string {
-    const labels: Record<string, string> = {
-      yes_no: 'Yes/No', list: 'List', date: 'Date', text: 'Text', number: 'Number', repeater: 'Repeater'
-    };
-    return labels[type] ?? type;
+    return `fieldType.${type}`;
   }
 }

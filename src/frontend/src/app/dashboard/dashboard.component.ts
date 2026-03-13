@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -7,53 +7,57 @@ import { LookupService } from '../services/lookup.service';
 import { TaskDefinitionService } from '../services/task-definition.service';
 import { TaskBoardService } from '../services/task-board.service';
 import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { DirectionService } from '../services/direction.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, TrustHtmlPipe],
+  imports: [RouterLink, TrustHtmlPipe, TranslocoPipe],
   template: `
     <div class="dash">
 
-      <!-- Page header -->
+      <!-- Noise + ambient layer -->
+      <div class="dash-noise"></div>
+      <div class="blob blob-a"></div>
+      <div class="blob blob-b"></div>
+
+      <!-- ── Page header ─────────────────────────────── -->
       <div class="page-header">
-        <div class="page-header-text">
-          <h1 class="page-title">Welcome back</h1>
-          <p class="page-date">{{ today }}</p>
+        <div class="header-text">
+          <h1 class="page-title">{{ 'dashboard.welcome' | transloco }}</h1>
+          <p class="page-date">{{ today() }}</p>
         </div>
         <a routerLink="/submit" class="cta-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Submit a Form
+          {{ 'dashboard.submitForm' | transloco }}
         </a>
       </div>
 
-      <!-- How It Works (pinned near top) -->
-      <section class="section flow-section">
+      <!-- ── How It Works ────────────────────────────── -->
+      <section class="section">
         <div class="section-header">
-          <div>
-            <h2 class="section-title">How It Works</h2>
-            <p class="section-sub">The automated workflow from form creation to task generation</p>
-          </div>
+          <h2 class="section-title">{{ 'dashboard.howItWorks' | transloco }}</h2>
+          <p class="section-sub">{{ 'dashboard.howItWorksSub' | transloco }}</p>
         </div>
 
-        <div class="flow-card">
+        <div class="flow-card glass-card">
           <div class="flow-steps">
             @for (step of steps; track step.num; let last = $last) {
               <div class="flow-step" [style]="'--sc:' + step.color + ';--sb:' + step.bg + ';animation-delay:' + (step.num * 0.1) + 's'">
-                <div class="step-badge" [style.background]="step.color">{{ step.num }}</div>
-                <div class="step-icon-wrap" [style.background]="step.bg" [style.color]="step.color">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="step.iconPath | trustHtml"></svg>
+                <div class="step-num" [style.color]="step.color" [style.border-color]="step.bg">{{ step.num }}</div>
+                <div class="step-icon-box" [style.background]="step.bg" [style.color]="step.color">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="step.iconPath | trustHtml"></svg>
                 </div>
-                <div class="step-label">{{ step.label }}</div>
-                <div class="step-desc">{{ step.desc }}</div>
+                <div class="step-label">{{ step.label | transloco }}</div>
+                <div class="step-desc">{{ step.desc | transloco }}</div>
               </div>
               @if (!last) {
-                <div class="flow-connector">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--bdi)">
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
+                <div class="flow-arrow">
+                  <div class="flow-dashes"></div>
+                  <div class="flow-pulse"></div>
                 </div>
               }
             }
@@ -61,157 +65,346 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
         </div>
       </section>
 
-      <!-- Stats row -->
+      <!-- ── Stats ───────────────────────────────────── -->
       <div class="stats-row">
-        <div class="stat-card" style="--c:#3b82f6;--bg:rgba(59,130,246,0.12);--cb:rgba(59,130,246,0.3)">
-          <div class="stat-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
+        @for (s of statCards; track s.key) {
+          <div class="stat-card glass-card" [style]="'--c:' + s.color + ';--cg:' + s.glow">
+            <div class="stat-icon" [style.color]="s.color">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="s.iconPath | trustHtml"></svg>
+            </div>
+            <div class="stat-value">{{ loading() ? '—' : stats()[s.key] }}</div>
+            <div class="stat-label">{{ s.label | transloco }}</div>
           </div>
-          <div class="stat-value">{{ loading() ? '—' : stats().forms }}</div>
-          <div class="stat-label">Form Templates</div>
-        </div>
-
-        <div class="stat-card" style="--c:#8b5cf6;--bg:rgba(139,92,246,0.12);--cb:rgba(139,92,246,0.3)">
-          <div class="stat-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6"/>
-              <line x1="8" y1="12" x2="21" y2="12"/>
-              <line x1="8" y1="18" x2="21" y2="18"/>
-              <line x1="3" y1="6" x2="3.01" y2="6"/>
-              <line x1="3" y1="12" x2="3.01" y2="12"/>
-              <line x1="3" y1="18" x2="3.01" y2="18"/>
-            </svg>
-          </div>
-          <div class="stat-value">{{ loading() ? '—' : stats().lookups }}</div>
-          <div class="stat-label">Lookup Lists</div>
-        </div>
-
-        <div class="stat-card" style="--c:#10b981;--bg:rgba(16,185,129,0.12);--cb:rgba(16,185,129,0.3)">
-          <div class="stat-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 11 12 14 22 4"/>
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-            </svg>
-          </div>
-          <div class="stat-value">{{ loading() ? '—' : stats().taskDefs }}</div>
-          <div class="stat-label">Task Types</div>
-        </div>
-
-        <div class="stat-card" style="--c:#f97316;--bg:rgba(249,115,22,0.12);--cb:rgba(249,115,22,0.3)">
-          <div class="stat-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="5" height="18" rx="1"/>
-              <rect x="10" y="3" width="5" height="12" rx="1"/>
-              <rect x="17" y="3" width="5" height="15" rx="1"/>
-            </svg>
-          </div>
-          <div class="stat-value">{{ loading() ? '—' : stats().activeTasks }}</div>
-          <div class="stat-label">Active Tasks</div>
-        </div>
+        }
       </div>
 
-      <!-- Feature navigation cards -->
+      <!-- ── Feature Bento Grid ──────────────────────── -->
       <section class="section">
         <div class="section-header">
-          <div>
-            <h2 class="section-title">Platform Modules</h2>
-            <p class="section-sub">Everything available from the navigation</p>
-          </div>
+          <h2 class="section-title">{{ 'dashboard.platformModules' | transloco }}</h2>
+          <p class="section-sub">{{ 'dashboard.platformModulesSub' | transloco }}</p>
         </div>
 
-        <div class="feature-grid">
+        <div class="bento-grid">
           @for (f of features; track f.link; let i = $index) {
-            <a [routerLink]="f.link" class="feature-card" [style]="'--c:' + f.color + ';--bg:' + f.bg + ';animation-delay:' + (i * 0.06) + 's'">
-              <div class="feature-top">
-                <div class="feature-icon-chip" [style.background]="f.bg" [style.color]="f.color">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="f.iconPath | trustHtml"></svg>
-                </div>
-                <div class="feature-arrow-icon">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                  </svg>
-                </div>
+            <a [routerLink]="f.link"
+               class="feature-card glass-card"
+               [style]="'--c:' + f.color + ';--cb:' + f.colorBg + ';grid-area:' + f.gridArea + ';animation-delay:' + (i * 0.07) + 's'">
+              <!-- Icon floating top-right -->
+              <div class="fc-icon-dot" [style.background]="f.colorBg" [style.color]="f.color">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="f.iconPath | trustHtml"></svg>
               </div>
-              <div class="feature-title">{{ f.title }}</div>
-              <div class="feature-desc">{{ f.desc }}</div>
-              <div class="feature-tag" [style.background]="f.bg" [style.color]="f.color">{{ f.section }}</div>
+              <!-- Section tag top-left -->
+              <div class="fc-badge" [style.color]="f.color" [style.background]="f.colorBg">{{ f.section | transloco }}</div>
+              <!-- Text anchored to bottom -->
+              <div class="fc-body">
+                <div class="fc-title">{{ f.title | transloco }}</div>
+                <div class="fc-desc">{{ f.desc | transloco }}</div>
+              </div>
+              <!-- Arrow -->
+              <div class="fc-arrow">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </div>
             </a>
           }
         </div>
       </section>
 
-
     </div>
   `,
   styles: [`
-    .dash {
-      animation: fadeIn 0.3s ease;
+
+    /* ═══════════════════════════════════════════════════════
+       EMERALD SLATE & OBSIDIAN GLASS — Design System
+       Dark  : deep forest obsidian, emerald accents
+       Light : warm ivory surface, teal/forest accents
+    ═══════════════════════════════════════════════════════ */
+
+    :host {
+      /* Shared */
+      --radius-xl:  22px;
+      --radius-lg:  16px;
+      --radius-md:  12px;
+      --radius-sm:  8px;
+      --ease-spring: cubic-bezier(.34,1.56,.64,1);
+      --ease-smooth: cubic-bezier(.4,0,.2,1);
+
+      /* Dark theme defaults */
+      --dash-bg:      #090e0c;
+      --surface:      rgba(16, 24, 20, 0.72);
+      --surface-solid:#111816;
+      --stroke:       rgba(255,255,255,0.06);
+      --stroke-hover: rgba(255,255,255,0.14);
+      --tx:           #edf2f0;
+      --tx2:          #a8bcb4;
+      --tx3:          #6b8a7e;
+      --shadow-card:  0 1px 3px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+      --shadow-hover: 0 2px 4px rgba(0,0,0,0.5), 0 16px 40px rgba(0,0,0,0.4);
+
+      /* Primary CTA: Emerald */
+      --cta-from: #059669;
+      --cta-to:   #10b981;
+      --cta-glow: rgba(16,185,129,0.45);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+    /* ── LIGHT THEME ─────────────────────────────────────── */
+    :host-context(.light-theme) {
+      --dash-bg:      #f2f7f5;
+      --surface:      rgba(255, 255, 255, 0.78);
+      --surface-solid:#ffffff;
+      --stroke:       rgba(0,0,0,0.07);
+      --stroke-hover: rgba(0,0,0,0.14);
+      --tx:           #0a1a14;
+      --tx2:          #4a6a5c;
+      --tx3:          #8aaa9c;
+      --shadow-card:  0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05);
+      --shadow-hover: 0 2px 8px rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.09);
+      --cta-from:     #065f46;
+      --cta-to:       #059669;
+      --cta-glow:     rgba(6,95,70,0.35);
+    }
+
+    /* ══════════════════════════════════════════════════════ */
+
+    .dash {
+      position: relative;
+      animation: fadeUp .35s var(--ease-smooth) both;
+      min-height: 100%;
+      max-width: 1280px;
+      margin-inline: auto;
+      padding-inline: 2rem;
+    }
+
+    /* Noise texture overlay on dark */
+    .dash-noise {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .035;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    :host-context(.light-theme) .dash-noise { opacity: .018; }
+
+    /* Ambient colour blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .blob-a {
+      width: 500px; height: 500px;
+      top: -120px; left: -160px;
+      background: radial-gradient(circle, rgba(16,185,129,.1) 0%, transparent 70%);
+    }
+    .blob-b {
+      width: 380px; height: 380px;
+      bottom: 80px; right: -100px;
+      background: radial-gradient(circle, rgba(5,150,105,.07) 0%, transparent 70%);
+    }
+
+    /* All foreground content above blobs */
+    .page-header, .section, .stats-row { position: relative; z-index: 1; }
+
+    /* Base glass card */
+    .glass-card {
+      background: var(--surface);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow-card);
+      transition: box-shadow .28s var(--ease-smooth), transform .28s var(--ease-smooth), border-color .28s;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes slideUp {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @keyframes dashPulse {
+      0%   { transform: translateX(-8px); opacity: 0; }
+      25%  { opacity: 1; }
+      75%  { opacity: 1; }
+      100% { transform: translateX(32px); opacity: 0; }
+    }
 
-    /* ── Page header ────────────────────────────────────── */
+    /* ── Page header ─────────────────────────────────────── */
     .page-header {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      margin-bottom: 2rem;
       gap: 1rem;
       flex-wrap: wrap;
+      margin-bottom: 2rem;
     }
 
     .page-title {
       font-size: 1.875rem;
-      font-weight: 800;
+      font-weight: 750;
+      letter-spacing: -.04em;
       color: var(--tx);
-      letter-spacing: -0.03em;
-      margin: 0 0 0.3rem;
+      margin: 0 0 .3rem;
+      line-height: 1.1;
     }
 
     .page-date {
-      font-size: 0.875rem;
+      font-size: .875rem;
       color: var(--tx3);
       margin: 0;
-      font-weight: 400;
     }
 
     .cta-btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      background: #3b82f6;
+      gap: .45rem;
+      background: linear-gradient(135deg, var(--cta-from), var(--cta-to));
       color: #fff;
-      font-size: 0.875rem;
+      font-size: .875rem;
       font-weight: 600;
-      padding: 0.625rem 1.25rem;
-      border-radius: 9px;
+      padding: .65rem 1.375rem;
+      border-radius: var(--radius-md);
       text-decoration: none;
-      letter-spacing: 0.01em;
-      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      letter-spacing: .01em;
       white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+      box-shadow: 0 4px 16px var(--cta-glow);
+      transition: transform .22s var(--ease-spring), box-shadow .22s;
     }
-
     .cta-btn:hover {
-      background: #2563eb;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(59,130,246,0.4);
+      transform: translateY(-3px) scale(1.025);
+      box-shadow: 0 8px 28px var(--cta-glow);
     }
 
-    /* ── Stats row ──────────────────────────────────────── */
+    /* ── Section header ──────────────────────────────────── */
+    .section { margin-bottom: 2rem; }
+
+    .section-header { margin-bottom: 1.125rem; }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--tx);
+      margin: 0 0 .2rem;
+    }
+    .section-sub {
+      font-size: .8125rem;
+      color: var(--tx3);
+      margin: 0;
+    }
+
+    /* ── Flow card ───────────────────────────────────────── */
+    .flow-card {
+      border-radius: var(--radius-xl);
+      padding: 2.25rem 1.75rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top-edge emerald shimmer line */
+    .flow-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(16,185,129,.5), transparent);
+      pointer-events: none;
+    }
+
+    .flow-steps {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 0;
+    }
+
+    .flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .6rem;
+      padding: 0 .75rem;
+      flex: 1;
+      min-width: 120px;
+      animation: slideUp .4s var(--ease-smooth) both;
+    }
+
+    .step-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid;
+      font-size: .7rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-icon-box {
+      width: 60px; height: 60px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,.08);
+      transition: transform .3s var(--ease-spring);
+    }
+    .flow-step:hover .step-icon-box {
+      transform: translateY(-6px) scale(1.06);
+    }
+
+    .step-label {
+      font-size: .8125rem;
+      font-weight: 700;
+      color: var(--tx);
+      text-align: center;
+    }
+    .step-desc {
+      font-size: .7rem;
+      color: var(--tx3);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* Dashed connector with travelling pulse */
+    .flow-arrow {
+      flex-shrink: 0;
+      width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1.8rem; /* align with icon center */
+      position: relative;
+    }
+    .flow-dashes {
+      width: 100%;
+      height: 1px;
+      background: repeating-linear-gradient(
+        to right,
+        var(--stroke-hover) 0, var(--stroke-hover) 4px,
+        transparent 4px, transparent 8px
+      );
+    }
+    .flow-pulse {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16,185,129,.9);
+      animation: dashPulse 2.8s ease-in-out infinite;
+    }
+
+    /* ── Stats row ───────────────────────────────────────── */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -220,378 +413,403 @@ import { TrustHtmlPipe } from '../pipes/safe-html.pipe';
     }
 
     .stat-card {
-      background: var(--sf);
-      border-radius: 16px;
-      border: 1px solid var(--bds);
-      border-top: 3px solid var(--c);
-      padding: 1.5rem 1.375rem 1.375rem;
+      border-radius: var(--radius-xl);
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      animation: slideUp 0.4s ease both;
-      transition: box-shadow 0.2s, transform 0.2s;
+      gap: .25rem;
+      position: relative;
+      overflow: hidden;
+      animation: slideUp .4s var(--ease-smooth) both;
     }
 
+    /* Per-card colour glow blob */
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: -24px; right: -24px;
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: var(--cg);
+      opacity: .35;
+      filter: blur(24px);
+      pointer-events: none;
+      transition: opacity .3s, transform .3s;
+    }
     .stat-card:hover {
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px);
+      border-color: var(--stroke-hover);
+    }
+    .stat-card:hover::after { opacity: .7; transform: scale(1.3); }
+
+    /* Left accent bar */
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 3px;
+      border-radius: 3px;
+      background: var(--c);
+      opacity: .7;
     }
 
-    .stat-icon-wrap {
-      width: 52px;
-      height: 52px;
-      border-radius: 13px;
-      background: var(--bg);
-      border: 1.5px solid var(--cb);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--c);
-      margin-bottom: 1.25rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    .stat-icon {
+      margin-bottom: .75rem;
+      opacity: .85;
+      position: relative; z-index: 1;
+      transition: transform .25s var(--ease-spring);
     }
+    .stat-card:hover .stat-icon { transform: scale(1.1) rotate(-6deg); }
 
     .stat-value {
       font-size: 2.5rem;
       font-weight: 800;
       color: var(--c);
-      letter-spacing: -0.05em;
+      letter-spacing: -.06em;
       line-height: 1;
-      margin-bottom: 0.375rem;
+      font-variant-numeric: tabular-nums;
+      position: relative; z-index: 1;
     }
-
     .stat-label {
-      font-size: 0.875rem;
-      color: var(--tx4);
-      font-weight: 500;
-    }
-
-    /* ── Sections ───────────────────────────────────────── */
-    .section {
-      margin-bottom: 2rem;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 1.125rem;
-    }
-
-    .section-title {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--tx);
-      letter-spacing: -0.02em;
-      margin: 0 0 0.25rem;
-    }
-
-    .section-sub {
-      font-size: 0.875rem;
+      font-size: .75rem;
       color: var(--tx3);
-      margin: 0;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      position: relative; z-index: 1;
     }
 
-    /* ── Feature cards ──────────────────────────────────── */
-    .feature-grid {
+    /* ── Bento Grid ──────────────────────────────────────── */
+    .bento-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: minmax(160px, auto) minmax(160px, auto);
       gap: 1.125rem;
+      grid-template-areas:
+        "submit submit subs  board"
+        "forms  lookups tasks tasks";
     }
 
     .feature-card {
-      background: var(--sf);
-      border-radius: 16px;
-      border: 1px solid var(--bds);
-      padding: 1.5rem;
+      border-radius: var(--radius-xl);
+      padding: 1.375rem;
       text-decoration: none;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      animation: slideUp 0.45s ease both;
-      transition: box-shadow 0.22s, transform 0.22s, background 0.22s, border-color 0.22s;
       position: relative;
+      overflow: hidden;
+      animation: slideUp .45s var(--ease-smooth) both;
     }
 
+    /* Gradient wash from accent colour */
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 20%, var(--cb) 0%, transparent 65%);
+      opacity: .7;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+
     .feature-card:hover {
-      background: var(--bg);
-      box-shadow: 0 8px 28px rgba(15,23,42,0.1);
-      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover), 0 0 0 1px var(--c);
+      transform: translateY(-4px) scale(1.008);
       border-color: var(--c);
     }
 
-    .feature-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-    }
-
-    .feature-icon-chip {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: var(--bg);
-      border: 1.5px solid var(--cb, rgba(0,0,0,0.07));
+    /* Icon dot — top right */
+    .fc-icon-dot {
+      position: absolute;
+      top: 1.2rem;
+      inset-inline-end: 1.2rem;
+      width: 42px; height: 42px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--c);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      transition: box-shadow 0.2s, transform 0.2s;
+      border: 1px solid rgba(255,255,255,.1);
+      z-index: 1;
+      transition: transform .3s var(--ease-spring);
     }
+    .feature-card:hover .fc-icon-dot { transform: rotate(-8deg) scale(1.1); }
 
-    .feature-card:hover .feature-icon-chip {
-      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-      transform: scale(1.06);
-    }
-
-    .feature-arrow-icon {
-      color: var(--bdi);
-      transition: color 0.2s, transform 0.2s;
-    }
-
-    .feature-card:hover .feature-arrow-icon {
-      color: var(--c);
-      transform: translateX(4px);
-    }
-
-    .feature-title {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      color: var(--tx);
-      letter-spacing: -0.01em;
-    }
-
-    .feature-desc {
-      font-size: 0.875rem;
-      color: var(--tx4);
-      line-height: 1.6;
-      flex: 1;
-    }
-
-    .feature-tag {
-      display: inline-block;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      padding: 0.2rem 0.55rem;
-      border-radius: 5px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      width: fit-content;
-      margin-top: 0.375rem;
-    }
-
-    .flow-section {
-      margin-bottom: 2.25rem;
-    }
-
-    /* ── Flow card ──────────────────────────────────────── */
-    .flow-card {
-      background: linear-gradient(145deg, var(--bg) 0%, var(--sf) 100%);
-      border-radius: 16px;
-      border: 1px solid var(--bds);
-      padding: 2.25rem 1.75rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-
-    .flow-steps {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      gap: 0;
-      padding-bottom: 0.25rem;
-    }
-
-    .flow-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0 0.875rem;
-      flex: 1;
-      min-width: 128px;
-      animation: slideUp 0.4s ease both;
-      cursor: default;
-    }
-
-    .step-badge {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      color: white;
-      font-size: 0.75rem;
+    /* Section badge — top left */
+    .fc-badge {
+      position: absolute;
+      top: 1.2rem;
+      inset-inline-start: 1.2rem;
+      font-size: .6rem;
       font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      letter-spacing: 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .2rem .55rem;
+      border-radius: 5px;
+      z-index: 1;
     }
 
-    .step-icon-wrap {
-      width: 64px;
-      height: 64px;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1.5px solid rgba(0,0,0,0.06);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-      transition: transform 0.22s, box-shadow 0.22s;
+    /* Title + desc pushed to bottom */
+    .fc-body {
+      margin-top: auto;
+      padding-top: 3rem;
+      position: relative; z-index: 1;
     }
-
-    .flow-step:hover .step-icon-wrap {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.13);
-    }
-
-    .step-label {
-      font-size: 0.9375rem;
+    .fc-title {
+      font-size: .9375rem;
       font-weight: 700;
       color: var(--tx);
-      text-align: center;
+      letter-spacing: -.01em;
+      margin-bottom: .25rem;
+    }
+    .fc-desc {
+      font-size: .775rem;
+      color: var(--tx2);
+      line-height: 1.55;
     }
 
-    .step-desc {
-      font-size: 0.8125rem;
-      color: var(--tx3);
-      text-align: center;
-      line-height: 1.4;
+    /* Arrow — bottom right */
+    .fc-arrow {
+      position: absolute;
+      bottom: 1.2rem;
+      inset-inline-end: 1.2rem;
+      color: var(--c);
+      opacity: .45;
+      transition: opacity .25s, transform .25s var(--ease-spring);
+      z-index: 1;
+    }
+    .feature-card:hover .fc-arrow {
+      opacity: 1;
+      transform: translate(3px, -3px);
     }
 
-    .flow-connector {
-      flex-shrink: 0;
-      padding: 0 0.25rem;
-      margin-top: -2.25rem;
-      opacity: 0.7;
+    /* ── Light theme card overrides ─────────────────────── */
+    :host-context(.light-theme) .page-title {
+      background: linear-gradient(135deg, #0a1a14 0%, #1a4a36 60%, #2d7a5e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    :host-context(.light-theme) .flow-card {
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.07);
+      border-color: rgba(0,0,0,0.08);
+    }
+
+    :host-context(.light-theme) .stat-card {
+      background: #ffffff;
+      border-color: rgba(0,0,0,0.08);
+      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.07), 0 0 30px -15px var(--c);
+    }
+
+    :host-context(.light-theme) .stat-value {
+      background: linear-gradient(135deg, var(--c), color-mix(in oklch, var(--c) 70%, #0a1a14));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    :host-context(.light-theme) .feature-card {
+      background: #ffffff;
+      border-color: rgba(0,0,0,0.08);
+      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
+    }
+
+    :host-context(.light-theme) .fc-title { color: #0a1a14; }
+    :host-context(.light-theme) .fc-desc  { color: #4a6a5c; }
+
+    :host-context(.light-theme) .step-label { color: #0a1a14; }
+    :host-context(.light-theme) .step-desc  { color: #6b8a7e; }
+
+    :host-context(.light-theme) .step-icon-box {
+      border-color: rgba(0,0,0,.06);
+    }
+
+    :host-context(.light-theme) .flow-dashes {
+      background: repeating-linear-gradient(
+        to right,
+        rgba(0,0,0,.18) 0, rgba(0,0,0,.18) 4px,
+        transparent 4px, transparent 8px
+      );
     }
 
     /* ── Responsive ─────────────────────────────────────── */
-    @media (max-width: 1100px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
-      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 1200px) {
+      .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: none;
+        grid-template-areas:
+          "submit submit"
+          "subs   board"
+          "forms  lookups"
+          "tasks  tasks";
+      }
     }
-
+    @media (max-width: 960px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 700px) {
       .stats-row { grid-template-columns: 1fr; }
-      .feature-grid { grid-template-columns: 1fr; }
+      .bento-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        grid-template-areas:
+          "submit" "subs" "board" "forms" "lookups" "tasks";
+      }
+      .feature-card { min-height: 140px; }
     }
   `]
 })
 export class DashboardComponent implements OnInit {
-  private formService = inject(FormService);
-  private lookupService = inject(LookupService);
+  private formService    = inject(FormService);
+  private lookupService  = inject(LookupService);
   private taskDefService = inject(TaskDefinitionService);
   private taskBoardService = inject(TaskBoardService);
+  private dir = inject(DirectionService);
 
-  stats = signal({ forms: 0, lookups: 0, taskDefs: 0, activeTasks: 0 });
+  stats   = signal({ forms: 0, lookups: 0, taskDefs: 0, activeTasks: 0 });
   loading = signal(true);
 
-  readonly today = new Date().toLocaleDateString('en-US', {
+  today = computed(() => new Date().toLocaleDateString(this.dir.isRtl() ? 'ar-SA' : 'en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
+  }));
 
-  readonly features = [
+  // Stat cards with per-card accent colours & glow colours
+  readonly statCards = [
     {
-      title: 'Form Templates',
-      desc: 'Design intelligent forms with dynamic fields, conditional logic, and structured data collection workflows.',
-      link: '/forms',
-      color: '#3b82f6',
-      bg: 'rgba(59,130,246,0.12)',
-      section: 'Admin',
+      key: 'forms' as const,
+      label: 'dashboard.statForms',
+      color: '#f59e0b',
+      glow: 'rgba(245,158,11,0.2)',
       iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'
     },
     {
-      title: 'Lookups',
-      desc: 'Manage reusable dropdown option lists that are shared across multiple form fields and versions.',
-      link: '/lookups',
-      color: '#8b5cf6',
-      bg: 'rgba(139,92,246,0.12)',
-      section: 'Admin',
+      key: 'lookups' as const,
+      label: 'dashboard.statLookups',
+      color: '#10b981',
+      glow: 'rgba(16,185,129,0.2)',
       iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'
     },
     {
-      title: 'Task Definitions',
-      desc: 'Define the automated tasks that get created when form submission conditions are satisfied by the rule engine.',
-      link: '/tasks',
-      color: '#10b981',
-      bg: 'rgba(16,185,129,0.12)',
-      section: 'Admin',
+      key: 'taskDefs' as const,
+      label: 'dashboard.statTaskTypes',
+      color: '#f43f5e',
+      glow: 'rgba(244,63,94,0.2)',
       iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
     },
     {
-      title: 'Submit a Form',
-      desc: 'Browse and fill out any published form as an end user. Experience the dynamic form renderer in action.',
-      link: '/submit',
-      color: '#f59e0b',
-      bg: 'rgba(245,158,11,0.12)',
-      section: 'Client',
+      key: 'activeTasks' as const,
+      label: 'dashboard.statActiveTasks',
+      color: '#a78bfa',
+      glow: 'rgba(167,139,250,0.2)',
+      iconPath: '<rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/>'
+    },
+  ];
+
+  readonly features = [
+    {
+      title:    'dashboard.feat.forms.title',
+      desc:     'dashboard.feat.forms.desc',
+      link:     '/forms',
+      gridArea: 'forms',
+      section:  'dashboard.sect.admin',
+      color:    '#f59e0b',
+      colorBg:  'rgba(245,158,11,0.14)',
+      iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'
+    },
+    {
+      title:    'dashboard.feat.lookups.title',
+      desc:     'dashboard.feat.lookups.desc',
+      link:     '/lookups',
+      gridArea: 'lookups',
+      section:  'dashboard.sect.admin',
+      color:    '#10b981',
+      colorBg:  'rgba(16,185,129,0.14)',
+      iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'
+    },
+    {
+      title:    'dashboard.feat.tasks.title',
+      desc:     'dashboard.feat.tasks.desc',
+      link:     '/tasks',
+      gridArea: 'tasks',
+      section:  'dashboard.sect.admin',
+      color:    '#f43f5e',
+      colorBg:  'rgba(244,63,94,0.14)',
+      iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
+    },
+    {
+      title:    'dashboard.feat.submit.title',
+      desc:     'dashboard.feat.submit.desc',
+      link:     '/submit',
+      gridArea: 'submit',
+      section:  'dashboard.sect.client',
+      color:    '#a78bfa',
+      colorBg:  'rgba(167,139,250,0.14)',
       iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>'
     },
     {
-      title: 'My Submissions',
-      desc: 'Review your submitted forms, see all field values, and track which automated tasks were generated.',
-      link: '/my-submissions',
-      color: '#06b6d4',
-      bg: 'rgba(6,182,212,0.12)',
-      section: 'Client',
+      title:    'dashboard.feat.submissions.title',
+      desc:     'dashboard.feat.submissions.desc',
+      link:     '/my-submissions',
+      gridArea: 'subs',
+      section:  'dashboard.sect.client',
+      color:    '#06b6d4',
+      colorBg:  'rgba(6,182,212,0.14)',
       iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
     },
     {
-      title: 'Task Board',
-      desc: 'Manage generated tasks with an interactive Kanban board. Drag tasks between Pending, In Progress, and Completed.',
-      link: '/task-board',
-      color: '#f43f5e',
-      bg: 'rgba(244,63,94,0.12)',
-      section: 'Client',
+      title:    'dashboard.feat.board.title',
+      desc:     'dashboard.feat.board.desc',
+      link:     '/task-board',
+      gridArea: 'board',
+      section:  'dashboard.sect.client',
+      color:    '#fb923c',
+      colorBg:  'rgba(251,146,60,0.14)',
       iconPath: '<rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/>'
     },
   ];
 
   readonly steps = [
     {
-      num: 1, label: 'Build Form', desc: 'Create fields, types & lookups',
-      color: '#3b82f6', bg: 'rgba(59,130,246,0.12)',
+      num: 1, label: 'dashboard.flow.step1.label', desc: 'dashboard.flow.step1.desc',
+      color: '#f59e0b', bg: 'rgba(245,158,11,0.14)',
       iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'
     },
     {
-      num: 2, label: 'Define Rules', desc: 'Conditions & task triggers',
-      color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)',
+      num: 2, label: 'dashboard.flow.step2.label', desc: 'dashboard.flow.step2.desc',
+      color: '#10b981', bg: 'rgba(16,185,129,0.14)',
       iconPath: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
     },
     {
-      num: 3, label: 'Submit Form', desc: 'User fills out and sends',
-      color: '#10b981', bg: 'rgba(16,185,129,0.12)',
+      num: 3, label: 'dashboard.flow.step3.label', desc: 'dashboard.flow.step3.desc',
+      color: '#a78bfa', bg: 'rgba(167,139,250,0.14)',
       iconPath: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>'
     },
     {
-      num: 4, label: 'Engine Fires', desc: 'Rules evaluate in real-time',
-      color: '#f97316', bg: 'rgba(249,115,22,0.12)',
+      num: 4, label: 'dashboard.flow.step4.label', desc: 'dashboard.flow.step4.desc',
+      color: '#fb923c', bg: 'rgba(251,146,60,0.14)',
       iconPath: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'
     },
     {
-      num: 5, label: 'Tasks Created', desc: 'Automated actions queued',
-      color: '#f43f5e', bg: 'rgba(244,63,94,0.12)',
+      num: 5, label: 'dashboard.flow.step5.label', desc: 'dashboard.flow.step5.desc',
+      color: '#f43f5e', bg: 'rgba(244,63,94,0.14)',
       iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
     },
   ];
 
   ngOnInit() {
     forkJoin({
-      forms: this.formService.getAll().pipe(catchError(() => of([]))),
+      forms:   this.formService.getAll().pipe(catchError(() => of([]))),
       lookups: this.lookupService.getAll().pipe(catchError(() => of([]))),
-      tasks: this.taskDefService.getAll().pipe(catchError(() => of([]))),
-      board: this.taskBoardService.getAll().pipe(catchError(() => of([]))),
+      tasks:   this.taskDefService.getAll().pipe(catchError(() => of([]))),
+      board:   this.taskBoardService.getAll().pipe(catchError(() => of([]))),
     }).subscribe(({ forms, lookups, tasks, board }) => {
       this.stats.set({
-        forms: forms.length,
-        lookups: lookups.length,
-        taskDefs: tasks.length,
+        forms:       forms.length,
+        lookups:     lookups.length,
+        taskDefs:    tasks.length,
         activeTasks: board.filter(t => t.status !== 'Completed').length,
       });
       this.loading.set(false);

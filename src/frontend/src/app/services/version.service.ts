@@ -6,6 +6,7 @@ import { ApiResponse, FormVersion, Field, ConditionalRule, TaskTrigger } from '.
 export interface CreateFieldRequest {
   fieldKey: string;
   label: string;
+  labelAr?: string | null;
   fieldType: string;
   lookupId: number | null;
   orderIndex: number;
@@ -16,6 +17,7 @@ export interface CreateFieldRequest {
 
 export interface UpdateFieldRequest {
   label: string;
+  labelAr?: string | null;
   fieldType: string;
   lookupId: number | null;
   orderIndex: number;

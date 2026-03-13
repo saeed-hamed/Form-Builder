@@ -1,18 +1,19 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { TaskDefinitionService } from '../../services/task-definition.service';
 import { TaskDefinition } from '../../models/api.models';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslocoPipe],
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Tasks</h1>
+        <h1>{{ 'tasks.title' | transloco }}</h1>
         <button class="btn-primary" (click)="toggleCreateForm()">
-          {{ showCreateForm() ? 'Cancel' : '+ New Task' }}
+          {{ (showCreateForm() ? 'common.cancel' : 'tasks.newTask') | transloco }}
         </button>
       </div>
 
@@ -22,32 +23,32 @@ import { TaskDefinition } from '../../models/api.models';
 
       @if (showCreateForm()) {
         <div class="card">
-          <h3>New Task</h3>
+          <h3>{{ 'tasks.newTaskCard' | transloco }}</h3>
           <form [formGroup]="createFg" (ngSubmit)="submit()">
             <div class="form-row">
-              <label>Name</label>
-              <input formControlName="name" placeholder="e.g. Verify Employment" />
+              <label>{{ 'common.name' | transloco }}</label>
+              <input formControlName="name" [placeholder]="'tasks.namePlaceholder' | transloco" />
             </div>
             <div class="form-row">
-              <label>Description</label>
-              <textarea formControlName="description" rows="2" placeholder="Optional description"></textarea>
+              <label>{{ 'common.description' | transloco }}</label>
+              <textarea formControlName="description" rows="2" [placeholder]="'tasks.descriptionPlaceholder' | transloco"></textarea>
             </div>
             <button type="submit" class="btn-primary" [disabled]="createFg.invalid">
-              Create Task
+              {{ 'tasks.createTask' | transloco }}
             </button>
           </form>
         </div>
       }
 
       @if (loading()) {
-        <p class="text-muted">Loading...</p>
+        <p class="text-muted">{{ 'common.loading' | transloco }}</p>
       } @else {
         <table class="table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Actions</th>
+              <th>{{ 'tasks.colName' | transloco }}</th>
+              <th>{{ 'tasks.colDescription' | transloco }}</th>
+              <th>{{ 'common.actions' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
@@ -57,7 +58,7 @@ import { TaskDefinition } from '../../models/api.models';
                 <td>{{ task.description || '—' }}</td>
                 <td>
                   <button class="btn-sm btn-danger" (click)="deleteTask(task.taskId)">
-                    Delete
+                    {{ 'common.delete' | transloco }}
                   </button>
                 </td>
               </tr>
@@ -65,7 +66,7 @@ import { TaskDefinition } from '../../models/api.models';
             @if (tasks().length === 0) {
               <tr>
                 <td colspan="3" style="text-align:center;color:var(--tx3);padding:2rem">
-                  No tasks yet
+                  {{ 'tasks.empty' | transloco }}
                 </td>
               </tr>
             }

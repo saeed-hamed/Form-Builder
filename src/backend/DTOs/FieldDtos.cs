@@ -10,6 +10,8 @@ public class CreateFieldRequest
     [Required]
     public string Label { get; set; } = string.Empty;
 
+    public string? LabelAr { get; set; }
+
     [Required]
     public string FieldType { get; set; } = string.Empty;
 
@@ -24,6 +26,8 @@ public class UpdateFieldRequest
 {
     [Required]
     public string Label { get; set; } = string.Empty;
+
+    public string? LabelAr { get; set; }
 
     [Required]
     public string FieldType { get; set; } = string.Empty;
@@ -41,6 +45,7 @@ public class FieldResponse
     public int FormVersionId { get; set; }
     public string FieldKey { get; set; } = string.Empty;
     public string Label { get; set; } = string.Empty;
+    public string? LabelAr { get; set; }
     public string FieldType { get; set; } = string.Empty;
     public int? LookupId { get; set; }
     public int OrderIndex { get; set; }

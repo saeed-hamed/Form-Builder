@@ -6,6 +6,7 @@ export interface LookupValue {
   lookupValueId: number;
   lookupId: number;
   value: string;
+  valueAr: string | null;
   orderIndex: number;
 }
 
@@ -49,6 +50,7 @@ export interface Field {
   formVersionId: number;
   fieldKey: string;
   label: string;
+  labelAr: string | null;
   fieldType: 'yes_no' | 'list' | 'date' | 'text' | 'number' | 'repeater';
   lookupId: number | null;
   orderIndex: number;

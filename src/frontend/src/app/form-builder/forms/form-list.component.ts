@@ -1,22 +1,23 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormService } from '../../services/form.service';
 import { Form } from '../../models/api.models';
 
 @Component({
   selector: 'app-form-list',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
   template: `
     <div class="page">
       <div class="page-header">
         <div>
-          <h1>Forms</h1>
-          <p class="page-subtitle">Create and manage your dynamic forms</p>
+          <h1>{{ 'forms.title' | transloco }}</h1>
+          <p class="page-subtitle">{{ 'forms.subtitle' | transloco }}</p>
         </div>
         <button class="btn-primary" (click)="toggleCreateForm()">
-          {{ showCreateForm() ? 'Cancel' : '+ New Form' }}
+          {{ (showCreateForm() ? 'common.cancel' : 'forms.newForm') | transloco }}
         </button>
       </div>
 
@@ -26,27 +27,27 @@ import { Form } from '../../models/api.models';
 
       @if (showCreateForm()) {
         <div class="card">
-          <h3>New Form</h3>
+          <h3>{{ 'forms.newFormCard' | transloco }}</h3>
           <form [formGroup]="createFg" (ngSubmit)="submit()">
             <div class="form-row">
-              <label>Title</label>
-              <input formControlName="title" placeholder="e.g. Employee Information" />
+              <label>{{ 'forms.titleLabel' | transloco }}</label>
+              <input formControlName="title" [placeholder]="'forms.titlePlaceholder' | transloco" />
             </div>
             <button type="submit" class="btn-primary" [disabled]="createFg.invalid">
-              Create Form
+              {{ 'forms.createForm' | transloco }}
             </button>
           </form>
         </div>
       }
 
       @if (loading()) {
-        <p class="text-muted">Loading…</p>
+        <p class="text-muted">{{ 'common.loading' | transloco }}</p>
       } @else {
         <table class="table">
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Created</th>
+              <th>{{ 'forms.colTitle' | transloco }}</th>
+              <th>{{ 'forms.colCreated' | transloco }}</th>
               <th></th>
             </tr>
           </thead>
@@ -57,10 +58,10 @@ import { Form } from '../../models/api.models';
                 <td class="text-muted text-sm">{{ formatDate(form.createdAt) }}</td>
                 <td style="text-align:right;display:flex;gap:0.5rem;justify-content:flex-end">
                   <a class="btn-sm btn-secondary" [routerLink]="['/forms', form.formId]">
-                    Open →
+                    {{ 'forms.open' | transloco }}
                   </a>
                   <button class="btn-sm btn-danger" (click)="deleteForm(form.formId, form.title)">
-                    Delete
+                    {{ 'common.delete' | transloco }}
                   </button>
                 </td>
               </tr>
@@ -68,7 +69,7 @@ import { Form } from '../../models/api.models';
             @if (forms().length === 0) {
               <tr>
                 <td colspan="3" style="text-align:center;color:var(--tx3);padding:3rem">
-                  No forms yet — create your first one
+                  {{ 'forms.empty' | transloco }}
                 </td>
               </tr>
             }

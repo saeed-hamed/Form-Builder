@@ -37,7 +37,7 @@ public class LookupService : ILookupService
         var lookupId = await _repo.CreateAsync(request.Name);
         for (int i = 0; i < request.Values.Count; i++)
         {
-            await _repo.AddValueAsync(lookupId, request.Values[i], i + 1);
+            await _repo.AddValueAsync(lookupId, request.Values[i], null, i + 1);
         }
         return (await GetLookupByIdAsync(lookupId))!;
     }
@@ -49,12 +49,13 @@ public class LookupService : ILookupService
 
     public async Task<LookupValueResponse> AddValueAsync(int lookupId, AddLookupValueRequest request)
     {
-        var id = await _repo.AddValueAsync(lookupId, request.Value, request.OrderIndex);
+        var id = await _repo.AddValueAsync(lookupId, request.Value, request.ValueAr, request.OrderIndex);
         return new LookupValueResponse
         {
             LookupValueId = id,
             LookupId = lookupId,
             Value = request.Value,
+            ValueAr = request.ValueAr,
             OrderIndex = request.OrderIndex
         };
     }
@@ -73,6 +74,7 @@ public class LookupService : ILookupService
             LookupValueId = v.LookupValueId,
             LookupId = v.LookupId,
             Value = v.Value,
+            ValueAr = v.ValueAr,
             OrderIndex = v.OrderIndex
         }).ToList()
     };

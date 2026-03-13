@@ -1,33 +1,34 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { VersionService } from '../../../services/version.service';
 import { ConditionalRule, ConditionJsonPayload, Field } from '../../../models/api.models';
 
 const OPERATORS = [
-  { value: 'equals', label: 'equals' },
-  { value: 'not_equals', label: 'does not equal' },
-  { value: 'contains', label: 'contains' },
-  { value: 'is_empty', label: 'is empty' },
-  { value: 'is_not_empty', label: 'is not empty' },
+  { value: 'equals', label: 'equals', labelKey: 'op.equals' },
+  { value: 'not_equals', label: 'does not equal', labelKey: 'op.not_equals' },
+  { value: 'contains', label: 'contains', labelKey: 'op.contains' },
+  { value: 'is_empty', label: 'is empty', labelKey: 'op.is_empty' },
+  { value: 'is_not_empty', label: 'is not empty', labelKey: 'op.is_not_empty' },
 ];
 
 const ACTIONS = [
-  { value: 'show', label: 'Show' },
-  { value: 'hide', label: 'Hide' },
-  { value: 'enable', label: 'Enable' },
-  { value: 'disable', label: 'Disable' },
+  { value: 'show', label: 'Show', labelKey: 'action.show' },
+  { value: 'hide', label: 'Hide', labelKey: 'action.hide' },
+  { value: 'enable', label: 'Enable', labelKey: 'action.enable' },
+  { value: 'disable', label: 'Disable', labelKey: 'action.disable' },
 ];
 
 @Component({
   selector: 'app-rules-tab',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslocoPipe],
   template: `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-        <h3 style="font-size:1rem;font-weight:600;color:var(--tx2)">Conditional UI Rules</h3>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--tx2)">{{ 'rules.heading' | transloco }}</h3>
         <button class="btn-primary btn-sm" (click)="toggleAddForm()">
-          {{ showAddForm() ? 'Cancel' : '+ Add Rule' }}
+          {{ (showAddForm() ? 'common.cancel' : 'rules.addRule') | transloco }}
         </button>
       </div>
 
@@ -37,49 +38,49 @@ const ACTIONS = [
 
       @if (showAddForm()) {
         <div class="card">
-          <h3>{{ editingRule() ? 'Edit Rule' : 'New Conditional Rule' }}</h3>
+          <h3>{{ (editingRule() ? 'rules.editRule' : 'rules.newRule') | transloco }}</h3>
           <p style="font-size:0.85rem;color:var(--tx4);margin-bottom:1rem">
-            IF [source field] [operator] [value] THEN [action] [target field]
+            {{ 'rules.hint' | transloco }}
           </p>
           <form [formGroup]="ruleFg" (ngSubmit)="submitRule()">
             <div class="form-grid-2">
               <div class="form-row">
-                <label>Source Field (IF)</label>
+                <label>{{ 'rules.sourceField' | transloco }}</label>
                 <select formControlName="sourceFieldId">
-                  <option [value]="0" disabled>Select field...</option>
+                  <option [value]="0" disabled>{{ 'rules.selectField' | transloco }}</option>
                   @for (f of fields(); track f.fieldId) {
                     <option [value]="f.fieldId">{{ f.label }} ({{ f.fieldKey }})</option>
                   }
                 </select>
               </div>
               <div class="form-row">
-                <label>Operator</label>
+                <label>{{ 'rules.operator' | transloco }}</label>
                 <select formControlName="operator">
                   @for (op of operators; track op.value) {
-                    <option [value]="op.value">{{ op.label }}</option>
+                    <option [value]="op.value">{{ op.labelKey | transloco }}</option>
                   }
                 </select>
               </div>
             </div>
             @if (!isEmptyOperator()) {
               <div class="form-row">
-                <label>Value</label>
-                <input formControlName="value" placeholder="e.g. Yes" />
+                <label>{{ 'rules.value' | transloco }}</label>
+                <input formControlName="value" [placeholder]="'rules.valuePlaceholder' | transloco" />
               </div>
             }
             <div class="form-grid-2">
               <div class="form-row">
-                <label>Action (THEN)</label>
+                <label>{{ 'rules.action' | transloco }}</label>
                 <select formControlName="actionType">
                   @for (a of actions; track a.value) {
-                    <option [value]="a.value">{{ a.label }}</option>
+                    <option [value]="a.value">{{ a.labelKey | transloco }}</option>
                   }
                 </select>
               </div>
               <div class="form-row">
-                <label>Target Field</label>
+                <label>{{ 'rules.targetField' | transloco }}</label>
                 <select formControlName="targetFieldKey">
-                  <option value="" disabled>Select field...</option>
+                  <option value="" disabled>{{ 'rules.selectField' | transloco }}</option>
                   @for (f of fields(); track f.fieldId) {
                     <option [value]="f.fieldKey">{{ f.label }} ({{ f.fieldKey }})</option>
                   }
@@ -88,10 +89,10 @@ const ACTIONS = [
             </div>
             <div class="flex-row" style="margin-top:0.5rem">
               <button type="submit" class="btn-primary" [disabled]="ruleFg.invalid || saving()">
-                {{ editingRule() ? 'Save Changes' : 'Add Rule' }}
+                {{ (editingRule() ? 'rules.saveChanges' : 'rules.addBtn') | transloco }}
               </button>
               @if (editingRule()) {
-                <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+                <button type="button" class="btn-secondary" (click)="cancelEdit()">{{ 'common.cancel' | transloco }}</button>
               }
             </div>
           </form>
@@ -99,16 +100,16 @@ const ACTIONS = [
       }
 
       @if (loading()) {
-        <p class="text-muted">Loading...</p>
+        <p class="text-muted">{{ 'common.loading' | transloco }}</p>
       } @else {
         <table class="table">
           <thead>
             <tr>
-              <th>Source Field</th>
-              <th>Condition</th>
-              <th>Action</th>
-              <th>Target Field</th>
-              <th>Actions</th>
+              <th>{{ 'rules.colSource' | transloco }}</th>
+              <th>{{ 'rules.colCondition' | transloco }}</th>
+              <th>{{ 'rules.colAction' | transloco }}</th>
+              <th>{{ 'rules.colTarget' | transloco }}</th>
+              <th>{{ 'common.actions' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
@@ -119,15 +120,15 @@ const ACTIONS = [
                 <td>{{ describeAction(rule) }}</td>
                 <td><code style="font-size:0.8rem">{{ describeTarget(rule) }}</code></td>
                 <td>
-                  <button class="btn-sm btn-secondary" (click)="editRule(rule)">Edit</button>
-                  <button class="btn-sm btn-danger" (click)="deleteRule(rule.ruleId)">Delete</button>
+                  <button class="btn-sm btn-secondary" (click)="editRule(rule)">{{ 'common.edit' | transloco }}</button>
+                  <button class="btn-sm btn-danger" (click)="deleteRule(rule.ruleId)">{{ 'common.delete' | transloco }}</button>
                 </td>
               </tr>
             }
             @if (rules().length === 0) {
               <tr>
                 <td colspan="5" style="text-align:center;color:var(--tx3);padding:2rem">
-                  No rules yet
+                  {{ 'rules.empty' | transloco }}
                 </td>
               </tr>
             }

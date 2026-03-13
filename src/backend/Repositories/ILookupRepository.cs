@@ -9,6 +9,6 @@ public interface ILookupRepository
     Task<IEnumerable<LookupValue>> GetValuesByLookupIdAsync(int lookupId);
     Task<int> CreateAsync(string name);
     Task<bool> DeleteAsync(int lookupId);
-    Task<int> AddValueAsync(int lookupId, string value, int orderIndex);
+    Task<int> AddValueAsync(int lookupId, string value, string? valueAr, int orderIndex);
     Task<bool> DeleteValueAsync(int lookupValueId);
 }

@@ -29,7 +29,7 @@ public class LookupRepository : ILookupRepository
     public async Task<IEnumerable<LookupValue>> GetValuesByLookupIdAsync(int lookupId)
     {
         return await _db.QueryAsync<LookupValue>(
-            "SELECT LookupValueId, LookupId, Value, OrderIndex FROM LookupValues WHERE LookupId = @LookupId ORDER BY OrderIndex",
+            "SELECT LookupValueId, LookupId, Value, ValueAr, OrderIndex FROM LookupValues WHERE LookupId = @LookupId ORDER BY OrderIndex",
             new { LookupId = lookupId });
     }
 
@@ -50,14 +50,14 @@ public class LookupRepository : ILookupRepository
         return rows > 0;
     }
 
-    public async Task<int> AddValueAsync(int lookupId, string value, int orderIndex)
+    public async Task<int> AddValueAsync(int lookupId, string value, string? valueAr, int orderIndex)
     {
         return await _db.ExecuteScalarAsync<int>("""
-            INSERT INTO LookupValues (LookupId, Value, OrderIndex)
-            VALUES (@LookupId, @Value, @OrderIndex);
+            INSERT INTO LookupValues (LookupId, Value, ValueAr, OrderIndex)
+            VALUES (@LookupId, @Value, @ValueAr, @OrderIndex);
             SELECT CAST(SCOPE_IDENTITY() AS INT);
             """,
-            new { LookupId = lookupId, Value = value, OrderIndex = orderIndex });
+            new { LookupId = lookupId, Value = value, ValueAr = valueAr, OrderIndex = orderIndex });
     }
 
     public async Task<bool> DeleteValueAsync(int lookupValueId)

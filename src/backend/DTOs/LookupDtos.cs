@@ -15,6 +15,8 @@ public class AddLookupValueRequest
     [Required]
     public string Value { get; set; } = string.Empty;
 
+    public string? ValueAr { get; set; }
+
     public int OrderIndex { get; set; }
 }
 
@@ -23,6 +25,7 @@ public class LookupValueResponse
     public int LookupValueId { get; set; }
     public int LookupId { get; set; }
     public string Value { get; set; } = string.Empty;
+    public string? ValueAr { get; set; }
     public int OrderIndex { get; set; }
 }
 

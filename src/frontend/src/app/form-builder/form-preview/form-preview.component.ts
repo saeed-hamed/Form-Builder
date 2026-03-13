@@ -1,12 +1,14 @@
 import { Component, Input, OnChanges, SimpleChanges, inject, signal, computed } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { VersionService } from '../../services/version.service';
 import { LookupService } from '../../services/lookup.service';
+import { DirectionService } from '../../services/direction.service';
 import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubField } from '../../models/api.models';
 
 @Component({
   selector: 'app-form-preview',
   standalone: true,
-  imports: [],
+  imports: [TranslocoPipe],
   template: `
     <div class="preview-panel">
 
@@ -16,9 +18,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
           </svg>
-          <span class="preview-label-top">Live Preview</span>
+          <span class="preview-label-top">{{ 'preview.label' | transloco }}</span>
         </div>
-        <button class="btn-secondary btn-sm" (click)="reload()">↻ Refresh</button>
+        <button class="btn-secondary btn-sm" (click)="reload()">{{ 'preview.refresh' | transloco }}</button>
       </div>
 
       <!-- Form shell -->
@@ -28,20 +30,20 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
         }
 
         @if (loading()) {
-          <p class="text-muted" style="text-align:center;padding:2rem 0">Loading preview…</p>
+          <p class="text-muted" style="text-align:center;padding:2rem 0">{{ 'preview.loading' | transloco }}</p>
         } @else if (visibleFields().length === 0) {
           <div class="preview-empty">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
             </svg>
-            <p>Add fields to see a preview</p>
+            <p>{{ 'preview.empty' | transloco }}</p>
           </div>
         } @else {
           <div class="preview-fields">
             @for (field of visibleFields(); track field.fieldId) {
               <div class="preview-field" [class.preview-field--required]="field.required">
                 <label class="preview-field-label">
-                  {{ field.label }}
+                  {{ fieldLabel(field) }}
                   @if (field.required) {
                     <span class="preview-required" title="Required">*</span>
                   }
@@ -57,7 +59,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                         [checked]="previewValues()[field.fieldKey] === 'Yes'"
                         (change)="onValueChange(field.fieldKey, 'Yes')"
                       />
-                      <span>Yes</span>
+                      <span>{{ 'common.yes' | transloco }}</span>
                     </label>
                     <label class="preview-radio">
                       <input
@@ -67,7 +69,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                         [checked]="previewValues()[field.fieldKey] === 'No'"
                         (change)="onValueChange(field.fieldKey, 'No')"
                       />
-                      <span>No</span>
+                      <span>{{ 'common.no' | transloco }}</span>
                     </label>
                   </div>
                 }
@@ -78,7 +80,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                     [value]="previewValues()[field.fieldKey] || ''"
                     (change)="onValueChange(field.fieldKey, $any($event.target).value)"
                   >
-                    <option value="">Select an option…</option>
+                    <option value="">{{ 'renderer.selectOption' | transloco }}</option>
                     @for (opt of lookupOptions(field.lookupId); track opt.lookupValueId) {
                       <option [value]="opt.value">{{ opt.value }}</option>
                     }
@@ -148,8 +150,8 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                                   @if (sf.type === 'yes_no') {
                                     <select class="rep-select" [value]="row[sf.key] || ''" (change)="onRepeaterCellChange(field.fieldKey, ri, sf.key, $any($event.target).value)">
                                       <option value="">—</option>
-                                      <option value="Yes">Yes</option>
-                                      <option value="No">No</option>
+                                      <option value="Yes">{{ 'common.yes' | transloco }}</option>
+                                      <option value="No">{{ 'common.no' | transloco }}</option>
                                     </select>
                                   }
                                 </td>
@@ -162,7 +164,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                         </tbody>
                       </table>
                     }
-                    <button type="button" class="rep-add-btn" (click)="addRepeaterRow(field.fieldKey)">＋ Add Row</button>
+                    <button type="button" class="rep-add-btn" (click)="addRepeaterRow(field.fieldKey)">{{ 'renderer.addRow' | transloco }}</button>
                   </div>
                 }
               </div>
@@ -171,9 +173,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
           <div class="preview-submit-row">
             <button class="btn-primary" disabled style="opacity:0.5;cursor:default;justify-content:center;width:100%">
-              Submit
+              {{ 'preview.submit' | transloco }}
             </button>
-            <p class="preview-hint">Preview only — submission disabled</p>
+            <p class="preview-hint">{{ 'preview.hint' | transloco }}</p>
           </div>
         }
       </div>
@@ -291,13 +293,13 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .preview-radio input[type="radio"]:checked {
-      border-color: #3b82f6;
-      background: #3b82f6;
+      border-color: #10b981;
+      background: #10b981;
       box-shadow: inset 0 0 0 3px var(--sf);
     }
 
     .preview-radio input[type="radio"]:focus-visible {
-      outline: 2px solid rgba(59,130,246,0.4);
+      outline: 2px solid rgba(16,185,129,0.4);
       outline-offset: 2px;
     }
 
@@ -352,7 +354,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
     .rep-input:focus, .rep-select:focus {
       outline: none;
-      border-color: #3b82f6;
+      border-color: #10b981;
     }
 
     .rep-remove {
@@ -380,9 +382,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .rep-add-btn:hover {
-      border-color: #3b82f6;
-      color: #3b82f6;
-      background: rgba(59,130,246,0.1);
+      border-color: #10b981;
+      color: #10b981;
+      background: rgba(16,185,129,0.1);
     }
   `]
 })
@@ -393,6 +395,7 @@ export class FormPreviewComponent implements OnChanges {
 
   private versionService = inject(VersionService);
   private lookupService = inject(LookupService);
+  private dir = inject(DirectionService);
 
   fields = signal<Field[]>([]);
   rules = signal<ConditionalRule[]>([]);
@@ -476,6 +479,10 @@ export class FormPreviewComponent implements OnChanges {
 
   onValueChange(fieldKey: string, value: string) {
     this.previewValues.update(prev => ({ ...prev, [fieldKey]: value }));
+  }
+
+  fieldLabel(field: Field): string {
+    return (this.dir.isRtl() && field.labelAr) ? field.labelAr : field.label;
   }
 
   lookupOptions(lookupId: number | null): LookupValue[] {

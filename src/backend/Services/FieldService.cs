@@ -30,6 +30,7 @@ public class FieldService : IFieldService
             formVersionId,
             request.FieldKey,
             request.Label,
+            request.LabelAr,
             request.FieldType,
             request.LookupId,
             request.OrderIndex,
@@ -45,6 +46,7 @@ public class FieldService : IFieldService
         return await _repo.UpdateAsync(
             fieldId,
             request.Label,
+            request.LabelAr,
             request.FieldType,
             request.LookupId,
             request.OrderIndex,
@@ -64,6 +66,7 @@ public class FieldService : IFieldService
         FormVersionId = f.FormVersionId,
         FieldKey = f.FieldKey,
         Label = f.Label,
+        LabelAr = f.LabelAr,
         FieldType = f.FieldType,
         LookupId = f.LookupId,
         OrderIndex = f.OrderIndex,

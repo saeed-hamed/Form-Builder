@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { VersionService } from '../../services/version.service';
 import { FormVersion } from '../../models/api.models';
 import { FieldsTabComponent } from './fields-tab/fields-tab.component';
@@ -11,11 +12,11 @@ type Tab = 'fields' | 'rules' | 'triggers';
 @Component({
   selector: 'app-version-editor',
   standalone: true,
-  imports: [RouterLink, FieldsTabComponent, RulesTabComponent, TriggersTabComponent],
+  imports: [RouterLink, TranslocoPipe, FieldsTabComponent, RulesTabComponent, TriggersTabComponent],
   template: `
     <div class="page">
       @if (loading()) {
-        <p class="text-muted">Loading...</p>
+        <p class="text-muted">{{ 'common.loading' | transloco }}</p>
       } @else if (version()) {
         <!-- Breadcrumb -->
         <div style="font-size:0.85rem;color:var(--tx4);margin-bottom:1rem">
@@ -33,33 +34,33 @@ type Tab = 'fields' | 'rules' | 'triggers';
             <h1>Version {{ version()!.versionNumber }}</h1>
             <div style="margin-top:0.25rem">
               @if (version()!.published) {
-                <span class="badge badge-green">Published</span>
+                <span class="badge badge-green">{{ 'editor.published' | transloco }}</span>
               } @else {
-                <span class="badge badge-yellow">Draft</span>
+                <span class="badge badge-yellow">{{ 'editor.draft' | transloco }}</span>
               }
             </div>
           </div>
           @if (!version()!.published) {
-            <button class="btn-primary" (click)="publish()">Publish Version</button>
+            <button class="btn-primary" (click)="publish()">{{ 'editor.publishVersion' | transloco }}</button>
           }
         </div>
 
         @if (version()!.published) {
           <p class="error" style="background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn-color);margin-bottom:1rem">
-            This version is published. Changes here will affect the active form.
+            {{ 'editor.publishedWarning' | transloco }}
           </p>
         }
 
         <!-- Tabs -->
         <div class="tabs">
           <button class="tab-btn" [class.active]="activeTab() === 'fields'" (click)="activeTab.set('fields')">
-            Fields
+            {{ 'editor.fields' | transloco }}
           </button>
           <button class="tab-btn" [class.active]="activeTab() === 'rules'" (click)="activeTab.set('rules')">
-            Conditional Rules
+            {{ 'editor.conditionalRules' | transloco }}
           </button>
           <button class="tab-btn" [class.active]="activeTab() === 'triggers'" (click)="activeTab.set('triggers')">
-            Task Triggers
+            {{ 'editor.taskTriggers' | transloco }}
           </button>
         </div>
 

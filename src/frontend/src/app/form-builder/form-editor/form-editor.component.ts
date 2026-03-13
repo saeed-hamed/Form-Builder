@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormService } from '../../services/form.service';
 import { VersionService } from '../../services/version.service';
 import { Form } from '../../models/api.models';
@@ -15,6 +16,7 @@ import { FormPreviewComponent } from '../form-preview/form-preview.component';
   imports: [
     RouterLink,
     ReactiveFormsModule,
+    TranslocoPipe,
     FieldsTabComponent,
     RulesTabComponent,
     TriggersTabComponent,
@@ -27,15 +29,15 @@ import { FormPreviewComponent } from '../form-preview/form-preview.component';
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
-        Forms
+        {{ 'editor.back' | transloco }}
       </a>
       <span class="fe-sep">/</span>
 
       @if (editingTitle()) {
         <form [formGroup]="titleFg" (ngSubmit)="saveTitle()" class="fe-title-form">
           <input formControlName="title" class="fe-title-input" />
-          <button type="submit" class="btn-primary btn-sm" [disabled]="titleFg.invalid">Save</button>
-          <button type="button" class="btn-secondary btn-sm" (click)="editingTitle.set(false)">Cancel</button>
+          <button type="submit" class="btn-primary btn-sm" [disabled]="titleFg.invalid">{{ 'common.save' | transloco }}</button>
+          <button type="button" class="btn-secondary btn-sm" (click)="editingTitle.set(false)">{{ 'common.cancel' | transloco }}</button>
         </form>
       } @else {
         <span class="fe-title" (click)="startEditTitle()" title="Click to rename">
@@ -55,14 +57,14 @@ import { FormPreviewComponent } from '../form-preview/form-preview.component';
 
       <div class="fe-header-actions">
         <button class="btn-secondary btn-sm" (click)="bumpPreview()">
-          ↻ Refresh Preview
+          {{ 'editor.refreshPreview' | transloco }}
         </button>
       </div>
     </div>
 
     @if (booting()) {
       <div style="padding:3rem 2rem">
-        <p class="text-muted">Setting up form…</p>
+        <p class="text-muted">{{ 'editor.booting' | transloco }}</p>
       </div>
     } @else if (versionId() > 0) {
       <div class="fe-body">
@@ -76,7 +78,7 @@ import { FormPreviewComponent } from '../form-preview/form-preview.component';
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
               </svg>
-              Fields
+              {{ 'editor.fields' | transloco }}
             </div>
             <app-fields-tab [versionId]="versionId()" />
           </div>
@@ -87,7 +89,7 @@ import { FormPreviewComponent } from '../form-preview/form-preview.component';
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
-              Conditional Rules
+              {{ 'editor.conditionalRules' | transloco }}
             </div>
             <app-rules-tab [versionId]="versionId()" />
           </div>
@@ -98,7 +100,7 @@ import { FormPreviewComponent } from '../form-preview/form-preview.component';
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
-              Task Triggers
+              {{ 'editor.taskTriggers' | transloco }}
             </div>
             <app-triggers-tab [versionId]="versionId()" />
           </div>

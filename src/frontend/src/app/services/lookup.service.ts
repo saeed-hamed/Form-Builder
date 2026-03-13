@@ -21,8 +21,8 @@ export class LookupService extends FormApiService {
     return this.delete<ApiResponse<string>>(`/api/lookups/${id}`);
   }
 
-  addValue(lookupId: number, value: string, orderIndex: number) {
-    return this.post<ApiResponse<LookupValue>>(`/api/lookups/${lookupId}/values`, { value, orderIndex }).pipe(map(r => r.data));
+  addValue(lookupId: number, value: string, valueAr: string | null, orderIndex: number) {
+    return this.post<ApiResponse<LookupValue>>(`/api/lookups/${lookupId}/values`, { value, valueAr, orderIndex }).pipe(map(r => r.data));
   }
 
   deleteValue(lookupId: number, valueId: number) {

@@ -1,15 +1,17 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormService } from '../services/form.service';
 import { VersionService } from '../services/version.service';
 import { LookupService } from '../services/lookup.service';
 import { SubmissionService } from '../services/submission.service';
+import { DirectionService } from '../services/direction.service';
 import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubField, SubmissionResponse } from '../models/api.models';
 
 @Component({
   selector: 'app-form-renderer',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoPipe],
   template: `
     <div class="renderer-page">
 
@@ -18,13 +20,13 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
-        All Forms
+        {{ 'renderer.allForms' | transloco }}
       </a>
 
       @if (loading()) {
         <div class="renderer-loading">
           <div class="spinner"></div>
-          <span>Loading form…</span>
+          <span>{{ 'renderer.loading' | transloco }}</span>
         </div>
       } @else if (error()) {
         <div class="renderer-error">{{ error() }}</div>
@@ -36,12 +38,12 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h2 class="success-title">Form Submitted!</h2>
-          <p class="success-sub">Your response has been recorded.</p>
+          <h2 class="success-title">{{ 'renderer.submitted' | transloco }}</h2>
+          <p class="success-sub">{{ 'renderer.submittedSub' | transloco }}</p>
 
           @if (submissionResult()?.generatedTasks?.length) {
             <div class="success-tasks">
-              <p class="success-tasks-label">Tasks generated from your submission:</p>
+              <p class="success-tasks-label">{{ 'renderer.tasksLabel' | transloco }}</p>
               @for (task of submissionResult()!.generatedTasks; track task.submissionTaskId) {
                 <div class="success-task-chip">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -54,12 +56,12 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
               }
             </div>
           } @else {
-            <p class="success-notasks">No tasks were triggered by this submission.</p>
+            <p class="success-notasks">{{ 'renderer.noTasks' | transloco }}</p>
           }
 
           <div class="success-actions">
-            <a routerLink="/submit" class="btn-secondary-link">Submit another form</a>
-            <a routerLink="/my-submissions" class="btn-primary-link">View my submissions</a>
+            <a routerLink="/submit" class="btn-secondary-link">{{ 'renderer.submitAnother' | transloco }}</a>
+            <a routerLink="/my-submissions" class="btn-primary-link">{{ 'renderer.viewSubmissions' | transloco }}</a>
           </div>
         </div>
 
@@ -75,7 +77,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
             @for (field of visibleFields(); track field.fieldId) {
               <div class="field-group" [class.field-required]="field.required">
                 <label class="field-label">
-                  {{ field.label }}
+                  {{ fieldLabel(field) }}
                   @if (field.required) { <span class="required-star">*</span> }
                 </label>
 
@@ -85,13 +87,13 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                       <input type="radio" [name]="'f_' + field.fieldKey" value="Yes"
                         [checked]="values()[field.fieldKey] === 'Yes'"
                         (change)="setValue(field.fieldKey, 'Yes')" />
-                      <span>Yes</span>
+                      <span>{{ 'common.yes' | transloco }}</span>
                     </label>
                     <label class="radio-option">
                       <input type="radio" [name]="'f_' + field.fieldKey" value="No"
                         [checked]="values()[field.fieldKey] === 'No'"
                         (change)="setValue(field.fieldKey, 'No')" />
-                      <span>No</span>
+                      <span>{{ 'common.no' | transloco }}</span>
                     </label>
                   </div>
                 }
@@ -100,9 +102,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                   <select class="field-input"
                     [value]="values()[field.fieldKey] || ''"
                     (change)="setValue(field.fieldKey, $any($event.target).value)">
-                    <option value="">Select an option…</option>
+                    <option value="">{{ 'renderer.selectOption' | transloco }}</option>
                     @for (opt of lookupOptions(field.lookupId); track opt.lookupValueId) {
-                      <option [value]="opt.value">{{ opt.value }}</option>
+                      <option [value]="opt.value">{{ optionLabel(opt) }}</option>
                     }
                   </select>
                 }
@@ -130,7 +132,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                 @if (field.fieldType === 'repeater') {
                   <div class="repeater-wrap">
                     @if (repeaterSubFields(field).length === 0) {
-                      <p class="rep-no-subfields">This repeater field has no sub-fields configured. Edit it in the admin to add columns.</p>
+                      <p class="rep-no-subfields">{{ 'renderer.noSubFields' | transloco }}</p>
                     } @else {
                       <table class="repeater-table">
                         <thead>
@@ -167,8 +169,8 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                                     <select class="rep-select" [value]="row[sf.key] || ''"
                                       (change)="onRepeaterCell(field.fieldKey, ri, sf.key, $any($event.target).value)">
                                       <option value="">—</option>
-                                      <option value="Yes">Yes</option>
-                                      <option value="No">No</option>
+                                      <option value="Yes">{{ 'common.yes' | transloco }}</option>
+                                      <option value="No">{{ 'common.no' | transloco }}</option>
                                     </select>
                                   }
                                 </td>
@@ -180,7 +182,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                           }
                         </tbody>
                       </table>
-                      <button type="button" class="rep-add-btn" (click)="addRepeaterRow(field.fieldKey)">＋ Add Row</button>
+                      <button type="button" class="rep-add-btn" (click)="addRepeaterRow(field.fieldKey)">{{ 'renderer.addRow' | transloco }}</button>
                     }
                   </div>
                 }
@@ -198,9 +200,9 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                 (click)="onSubmit()"
               >
                 @if (submitting()) {
-                  <span class="btn-spinner"></span> Submitting…
+                  <span class="btn-spinner"></span> {{ 'renderer.submitting' | transloco }}
                 } @else {
-                  Submit Form
+                  {{ 'renderer.submit' | transloco }}
                 }
               </button>
             </div>
@@ -225,7 +227,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       margin-bottom: 1.25rem;
       transition: color 0.15s;
     }
-    .back-link:hover { color: #3b82f6; }
+    .back-link:hover { color: #10b981; }
 
     .renderer-loading {
       display: flex;
@@ -239,7 +241,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       width: 18px;
       height: 18px;
       border: 2px solid var(--bd);
-      border-top-color: #3b82f6;
+      border-top-color: #10b981;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       flex-shrink: 0;
@@ -320,8 +322,8 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
 
     .field-input:focus {
       outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
     }
 
     .radio-group { display: flex; gap: 1.25rem; }
@@ -350,13 +352,13 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .radio-option input[type="radio"]:checked {
-      border-color: #3b82f6;
-      background: #3b82f6;
+      border-color: #10b981;
+      background: #10b981;
       box-shadow: inset 0 0 0 3px var(--sf);
     }
 
     .radio-option input[type="radio"]:focus-visible {
-      outline: 2px solid rgba(59,130,246,0.4);
+      outline: 2px solid rgba(16,185,129,0.4);
       outline-offset: 2px;
     }
 
@@ -423,7 +425,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       cursor: pointer;
     }
 
-    .rep-add-btn:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.1); }
+    .rep-add-btn:hover { border-color: #10b981; color: #10b981; background: rgba(16,185,129,0.1); }
 
     /* Submit row */
     .form-actions {
@@ -449,7 +451,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      background: linear-gradient(135deg, #059669, #10b981);
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -557,7 +559,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .btn-primary-link {
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      background: linear-gradient(135deg, #059669, #10b981);
       color: #fff;
       text-decoration: none;
       padding: 0.5rem 1.25rem;
@@ -585,6 +587,7 @@ export class FormRendererComponent implements OnInit {
   private versionService = inject(VersionService);
   private lookupService = inject(LookupService);
   private submissionService = inject(SubmissionService);
+  private dir = inject(DirectionService);
 
   formId = signal(0);
   versionId = signal(0);
@@ -682,6 +685,14 @@ export class FormRendererComponent implements OnInit {
 
   setValue(key: string, value: string) {
     this.values.update(v => ({ ...v, [key]: value }));
+  }
+
+  fieldLabel(field: Field): string {
+    return (this.dir.isRtl() && field.labelAr) ? field.labelAr : field.label;
+  }
+
+  optionLabel(opt: LookupValue): string {
+    return (this.dir.isRtl() && opt.valueAr) ? opt.valueAr : opt.value;
   }
 
   lookupOptions(lookupId: number | null): LookupValue[] {

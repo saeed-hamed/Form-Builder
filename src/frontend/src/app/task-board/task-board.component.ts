@@ -1,33 +1,34 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { TaskBoardService } from '../services/task-board.service';
 import { TaskBoardItem } from '../models/api.models';
 
 type Status = 'Pending' | 'In Progress' | 'Completed';
 
-const COLUMNS: { status: Status; label: string; color: string; bg: string; border: string; dot: string }[] = [
-  { status: 'Pending',     label: 'Pending',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)',  dot: '#f59e0b' },
-  { status: 'In Progress', label: 'In Progress', color: '#60a5fa', bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.3)',  dot: '#3b82f6' },
-  { status: 'Completed',   label: 'Completed',   color: '#4ade80', bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.3)',   dot: '#22c55e' },
+const COLUMNS: { status: Status; label: string; labelKey: string; color: string; bg: string; border: string; dot: string }[] = [
+  { status: 'Pending',     label: 'Pending',     labelKey: 'board.statusPending',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)',  dot: '#f59e0b' },
+  { status: 'In Progress', label: 'In Progress', labelKey: 'board.statusInProgress',  color: '#10b981', bg: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.3)',  dot: '#10b981' },
+  { status: 'Completed',   label: 'Completed',   labelKey: 'board.statusCompleted',   color: '#4ade80', bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.3)',   dot: '#22c55e' },
 ];
 
 @Component({
   selector: 'app-task-board',
   standalone: true,
-  imports: [],
+  imports: [TranslocoPipe],
   template: `
     <div class="board-page">
 
       <!-- Page header -->
       <div class="board-header">
         <div>
-          <h1 class="board-title">Task Board</h1>
-          <p class="board-subtitle">Drag tasks between columns to update their status</p>
+          <h1 class="board-title">{{ 'board.title' | transloco }}</h1>
+          <p class="board-subtitle">{{ 'board.subtitle' | transloco }}</p>
         </div>
         <div class="board-stats">
           @for (col of columns; track col.status) {
             <div class="stat-chip" [style.background]="col.bg" [style.border-color]="col.border" [style.color]="col.color">
               <span class="stat-dot" [style.background]="col.dot"></span>
-              {{ countFor(col.status) }} {{ col.label }}
+              {{ countFor(col.status) }} {{ col.labelKey | transloco }}
             </div>
           }
         </div>
@@ -40,7 +41,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
       @if (loading()) {
         <div class="board-loading">
           <div class="spinner"></div>
-          <span>Loading tasks…</span>
+          <span>{{ 'board.loading' | transloco }}</span>
         </div>
       } @else {
         <div class="board-columns">
@@ -56,7 +57,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
               <div class="column-header">
                 <div class="column-title">
                   <span class="column-dot" [style.background]="col.dot"></span>
-                  <span [style.color]="col.color">{{ col.label }}</span>
+                  <span [style.color]="col.color">{{ col.labelKey | transloco }}</span>
                 </div>
                 <span class="column-count" [style.background]="col.bg" [style.color]="col.color">
                   {{ countFor(col.status) }}
@@ -93,7 +94,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
                       <div class="card-footer">
                         <span class="card-date">{{ timeAgo(task.createdAt) }}</span>
                         @if (task.status === 'Completed' && task.completedAt) {
-                          <span class="card-completed-badge">✓ Done</span>
+                          <span class="card-completed-badge">{{ 'board.done' | transloco }}</span>
                         }
                       </div>
                     </div>
@@ -105,7 +106,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/>
                     </svg>
-                    <span>Drop tasks here</span>
+                    <span>{{ 'board.dropHere' | transloco }}</span>
                   </div>
                 }
               </div>
@@ -193,7 +194,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
       width: 20px;
       height: 20px;
       border: 2px solid var(--bd);
-      border-top-color: #3b82f6;
+      border-top-color: #10b981;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
@@ -218,7 +219,7 @@ const COLUMNS: { status: Status; label: string; color: string; bg: string; borde
     }
 
     .column.drag-over {
-      box-shadow: 0 0 0 2px #3b82f6, 0 4px 16px rgba(59,130,246,0.15);
+      box-shadow: 0 0 0 2px #10b981, 0 4px 16px rgba(16,185,129,0.15);
     }
 
     .column-header {

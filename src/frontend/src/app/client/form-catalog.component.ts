@@ -1,25 +1,26 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormService } from '../services/form.service';
 import { Form } from '../models/api.models';
 
 @Component({
   selector: 'app-form-catalog',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoPipe],
   template: `
     <div class="catalog-page">
       <div class="catalog-header">
         <div>
-          <h1 class="catalog-title">Available Forms</h1>
-          <p class="catalog-subtitle">Select a form to fill out and submit</p>
+          <h1 class="catalog-title">{{ 'catalog.title' | transloco }}</h1>
+          <p class="catalog-subtitle">{{ 'catalog.subtitle' | transloco }}</p>
         </div>
       </div>
 
       @if (loading()) {
         <div class="catalog-loading">
           <div class="spinner"></div>
-          <span>Loading forms…</span>
+          <span>{{ 'catalog.loading' | transloco }}</span>
         </div>
       } @else if (forms().length === 0) {
         <div class="catalog-empty">
@@ -27,8 +28,8 @@ import { Form } from '../models/api.models';
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
           </svg>
-          <p>No published forms available yet.</p>
-          <span>Ask your administrator to publish a form.</span>
+          <p>{{ 'catalog.empty' | transloco }}</p>
+          <span>{{ 'catalog.emptyHint' | transloco }}</span>
         </div>
       } @else {
         <div class="catalog-grid">
@@ -45,7 +46,7 @@ import { Form } from '../models/api.models';
               </div>
               <div class="form-card-body">
                 <h3 class="form-card-title">{{ form.title }}</h3>
-                <p class="form-card-meta">Published · Version available</p>
+                <p class="form-card-meta">{{ 'catalog.published' | transloco }}</p>
               </div>
               <div class="form-card-arrow">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -95,7 +96,7 @@ import { Form } from '../models/api.models';
       width: 20px;
       height: 20px;
       border: 2px solid var(--bd);
-      border-top-color: #3b82f6;
+      border-top-color: #10b981;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
@@ -135,8 +136,8 @@ import { Form } from '../models/api.models';
     }
 
     .form-card:hover {
-      border-color: #3b82f6;
-      box-shadow: 0 4px 16px rgba(59,130,246,0.12);
+      border-color: #10b981;
+      box-shadow: 0 4px 16px rgba(16,185,129,0.12);
       transform: translateY(-1px);
     }
 
@@ -144,11 +145,11 @@ import { Form } from '../models/api.models';
       width: 42px;
       height: 42px;
       border-radius: 10px;
-      background: rgba(59,130,246,0.12);
+      background: rgba(16,185,129,0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #3b82f6;
+      color: #10b981;
       flex-shrink: 0;
     }
 
@@ -174,7 +175,7 @@ import { Form } from '../models/api.models';
       transition: color 0.15s;
     }
 
-    .form-card:hover .form-card-arrow { color: #3b82f6; }
+    .form-card:hover .form-card-arrow { color: #10b981; }
   `]
 })
 export class FormCatalogComponent implements OnInit {

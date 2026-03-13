@@ -6,6 +6,7 @@ public class Field
     public int FormVersionId { get; set; }
     public string FieldKey { get; set; } = string.Empty;
     public string Label { get; set; } = string.Empty;
+    public string? LabelAr { get; set; }
     public string FieldType { get; set; } = string.Empty;
     public int? LookupId { get; set; }
     public int OrderIndex { get; set; }
