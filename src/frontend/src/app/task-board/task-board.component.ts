@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { TaskBoardService } from '../services/task-board.service';
-import { TaskBoardItem } from '../models/api.models';
+import { UserService } from '../services/user.service';
+import { TaskBoardItem, User } from '../models/api.models';
 
 type Status = 'Pending' | 'In Progress' | 'Completed';
 
@@ -14,7 +16,7 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
 @Component({
   selector: 'app-task-board',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, FormsModule],
   template: `
     <div class="board-page">
 
@@ -89,6 +91,46 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                           <span>{{ task.submittedBy }}</span>
                         </div>
+                      </div>
+
+                      <div class="card-assignee" (click)="$event.stopPropagation()">
+                        <span class="assignee-label">{{ 'taskBoard.assignee' | transloco }}</span>
+                        <div class="assignee-control">
+                          <span class="assignee-avatar" [class.assigned]="!!task.assignedToName">
+                            {{ task.assignedToName ? initials(task.assignedToName) : '—' }}
+                          </span>
+                          <select
+                            class="assignee-select"
+                            [ngModel]="task.assignedToUserId"
+                            (ngModelChange)="onAssign(task, $event)"
+                            (mousedown)="$event.stopPropagation()"
+                          >
+                            <option [ngValue]="null">{{ 'taskBoard.unassigned' | transloco }}</option>
+                            @for (user of users(); track user.userId) {
+                              <option [ngValue]="user.userId">{{ user.name }}</option>
+                            }
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="card-due">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        @if (task.dueDate) {
+                          <span class="due-text" [class.overdue]="isOverdue(task)" [class.due-soon]="isDueSoon(task)">
+                            {{ formatDueDate(task.dueDate) }}
+                          </span>
+                          @if (isOverdue(task)) {
+                            <span class="due-badge due-badge--overdue">{{ 'taskBoard.overdue' | transloco }}</span>
+                          } @else if (isDueSoon(task)) {
+                            <span class="due-badge due-badge--soon">{{ 'taskBoard.dueSoon' | transloco }}</span>
+                          } @else {
+                            <span class="due-badge due-badge--ok">{{ 'taskBoard.onTrack' | transloco }}</span>
+                          }
+                        } @else {
+                          <span class="due-text due-text--none">{{ 'taskBoard.noDueDate' | transloco }}</span>
+                        }
                       </div>
 
                       <div class="card-footer">
@@ -355,12 +397,125 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
       padding: 0.1rem 0.4rem;
       border-radius: 4px;
     }
+
+    .card-due {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.3rem;
+      padding-top: 0.3rem;
+      border-top: 1px solid var(--bds);
+      flex-wrap: wrap;
+    }
+
+    .card-due svg { flex-shrink: 0; color: var(--tx4); }
+
+    .due-text {
+      font-size: 0.72rem;
+      color: var(--tx3);
+      flex: 1;
+    }
+
+    .due-text.overdue { color: #f87171; font-weight: 600; }
+    .due-text.due-soon { color: #f59e0b; font-weight: 600; }
+    .due-text--none { color: var(--tx5); font-style: italic; }
+
+    .due-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .due-badge--overdue { color: #f87171; background: rgba(248,113,113,0.15); }
+    .due-badge--soon    { color: #f59e0b; background: rgba(245,158,11,0.12); }
+    .due-badge--ok      { color: #10b981; background: rgba(16,185,129,0.12); }
+
+    .card-assignee {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: 0.375rem;
+      padding-top: 0.375rem;
+      border-top: 1px solid var(--bds);
+    }
+
+    .assignee-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--tx4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .assignee-control {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex: 1;
+      min-width: 0;
+      background: var(--sf);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 0.2rem 0.35rem;
+      transition: border-color 0.15s;
+    }
+
+    .assignee-control:focus-within {
+      border-color: var(--accent);
+    }
+
+    .assignee-avatar {
+      width: 1.375rem;
+      height: 1.375rem;
+      border-radius: 50%;
+      background: var(--bd);
+      color: var(--tx3);
+      font-size: 0.58rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .assignee-avatar.assigned {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .assignee-select {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--tx);
+      background: var(--sf);
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .assignee-select option {
+      background: var(--sf);
+      color: var(--tx);
+    }
   `]
 })
 export class TaskBoardComponent implements OnInit {
   private taskBoardService = inject(TaskBoardService);
+  private userService = inject(UserService);
 
   tasks = signal<TaskBoardItem[]>([]);
+  users = signal<User[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
   draggingId = signal<number | null>(null);
@@ -370,6 +525,7 @@ export class TaskBoardComponent implements OnInit {
 
   ngOnInit() {
     this.load();
+    this.userService.getAll().subscribe({ next: data => this.users.set(data) });
   }
 
   load() {
@@ -378,6 +534,51 @@ export class TaskBoardComponent implements OnInit {
       next: data => { this.tasks.set(data); this.loading.set(false); },
       error: () => { this.error.set('Failed to load tasks'); this.loading.set(false); }
     });
+  }
+
+  onAssign(task: TaskBoardItem, userId: number | null) {
+    const prevUserId = task.assignedToUserId;
+    const prevName = task.assignedToName;
+    const user = userId ? this.users().find(u => u.userId === userId) ?? null : null;
+
+    // Optimistic update
+    this.tasks.update(ts => ts.map(t =>
+      t.submissionTaskId === task.submissionTaskId
+        ? { ...t, assignedToUserId: userId, assignedToName: user?.name ?? null }
+        : t
+    ));
+
+    this.taskBoardService.assign(task.submissionTaskId, userId).subscribe({
+      error: () => {
+        // Revert
+        this.tasks.update(ts => ts.map(t =>
+          t.submissionTaskId === task.submissionTaskId
+            ? { ...t, assignedToUserId: prevUserId, assignedToName: prevName }
+            : t
+        ));
+        this.error.set('Failed to assign task');
+      }
+    });
+  }
+
+  isOverdue(task: TaskBoardItem): boolean {
+    if (!task.dueDate || task.status === 'Completed') return false;
+    return new Date(task.dueDate) < new Date();
+  }
+
+  isDueSoon(task: TaskBoardItem): boolean {
+    if (!task.dueDate || task.status === 'Completed' || this.isOverdue(task)) return false;
+    const diff = new Date(task.dueDate).getTime() - Date.now();
+    return diff < 48 * 60 * 60 * 1000; // within 48 hours
+  }
+
+  formatDueDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  initials(name: string): string {
+    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
   }
 
   tasksFor(status: Status): TaskBoardItem[] {

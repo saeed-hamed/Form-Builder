@@ -40,6 +40,16 @@ public class TasksController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = task.TaskId }, new { data = task });
     }
 
+    // PUT api/tasks/{id}
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskRequest request)
+    {
+        var updated = await _taskService.UpdateAsync(id, request);
+        if (!updated) return NotFound(new { error = "Task not found" });
+        var task = await _taskService.GetByIdAsync(id);
+        return Ok(new { data = task });
+    }
+
     // DELETE api/tasks/{id}
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)

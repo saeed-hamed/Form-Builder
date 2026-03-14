@@ -36,4 +36,15 @@ public class TaskBoardController : ControllerBase
 
         return Ok(new { data = "Status updated" });
     }
+
+    // PATCH api/task-board/{id}/assign
+    [HttpPatch("{id:int}/assign")]
+    public async Task<IActionResult> Assign(int id, [FromBody] AssignTaskRequest request)
+    {
+        var updated = await _submissionService.AssignTaskAsync(id, request.UserId);
+        if (!updated) return NotFound(new { error = "Task not found" });
+
+        return Ok(new { data = "Assigned" });
+    }
+
 }

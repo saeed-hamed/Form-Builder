@@ -62,12 +62,17 @@ public class SubmissionRepository : ISubmissionRepository
                     tx);
             }
 
-            // 3. Insert generated tasks
+            // 3. Insert generated tasks — auto-compute DueDate from Tasks.DueDays
             foreach (var taskId in data.TaskIds)
             {
                 await _db.ExecuteAsync("""
-                    INSERT INTO SubmissionTasks (SubmissionId, TaskId, Status, CreatedAt)
-                    VALUES (@SubmissionId, @TaskId, 'Pending', GETUTCDATE());
+                    INSERT INTO SubmissionTasks (SubmissionId, TaskId, Status, CreatedAt, DueDate)
+                    SELECT @SubmissionId, @TaskId, 'Pending', GETUTCDATE(),
+                           CASE WHEN t.DueDays IS NOT NULL
+                                THEN DATEADD(day, t.DueDays, GETUTCDATE())
+                                ELSE NULL END
+                    FROM Tasks t
+                    WHERE t.TaskId = @TaskId;
                     """,
                     new { SubmissionId = submissionId, TaskId = taskId },
                     tx);
@@ -137,14 +142,26 @@ public class SubmissionRepository : ISubmissionRepository
         return await _db.QueryAsync<TaskBoardItemResponse>("""
             SELECT st.SubmissionTaskId, st.TaskId, t.Name AS TaskName,
                    st.Status, st.CreatedAt, st.CompletedAt, st.SubmissionId,
-                   f.Title AS FormTitle, fs.SubmittedBy, fs.SubmittedAt
+                   f.Title AS FormTitle, fs.SubmittedBy, fs.SubmittedAt,
+                   st.AssignedToUserId, u.Name AS AssignedToName,
+                   st.DueDate
             FROM SubmissionTasks st
             JOIN Tasks t ON t.TaskId = st.TaskId
             JOIN FormSubmissions fs ON fs.SubmissionId = st.SubmissionId
             JOIN Forms f ON f.FormId = fs.FormId
+            LEFT JOIN Users u ON u.UserId = st.AssignedToUserId
             ORDER BY st.CreatedAt DESC
             """);
     }
+
+    public async Task<bool> AssignTaskAsync(int submissionTaskId, int? userId)
+    {
+        var rows = await _db.ExecuteAsync(
+            "UPDATE SubmissionTasks SET AssignedToUserId = @UserId WHERE SubmissionTaskId = @SubmissionTaskId",
+            new { SubmissionTaskId = submissionTaskId, UserId = userId });
+        return rows > 0;
+    }
+
 
     public async Task<bool> UpdateTaskStatusAsync(int submissionTaskId, string status)
     {

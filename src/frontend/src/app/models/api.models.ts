@@ -20,6 +20,7 @@ export interface TaskDefinition {
   taskId: number;
   name: string;
   description: string | null;
+  dueDays: number | null;
 }
 
 export interface Form {
@@ -127,4 +128,16 @@ export interface TaskBoardItem {
   formTitle: string;
   submittedBy: string;
   submittedAt: string;
+  assignedToUserId: number | null;
+  assignedToName: string | null;
+  dueDate: string | null;
+}
+
+export interface User {
+  userId: number;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
 }

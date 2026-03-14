@@ -8,6 +8,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+
 // Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -59,6 +61,7 @@ builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskTriggerRepository, TaskTriggerRepository>();
 builder.Services.AddScoped<IConditionalRuleRepository, ConditionalRuleRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Services
 builder.Services.AddScoped<IFormService, FormService>();
@@ -68,6 +71,7 @@ builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskTriggerService, TaskTriggerService>();
 builder.Services.AddScoped<IConditionalRuleService, ConditionalRuleService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRuleEngine, RuleEngine>();
 
 builder.Services.AddOpenApi();

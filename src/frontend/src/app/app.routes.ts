@@ -37,5 +37,9 @@ export const routes: Routes = [
   {
     path: 'my-submissions',
     loadComponent: () => import('./client/my-submissions.component').then(m => m.MySubmissionsComponent)
+  },
+  {
+    path: 'users',
+    loadComponent: () => import('./admin/users/user-list.component').then(m => m.UserListComponent)
   }
 ];

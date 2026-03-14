@@ -33,6 +33,10 @@ import { TaskDefinition } from '../../models/api.models';
               <label>{{ 'common.description' | transloco }}</label>
               <textarea formControlName="description" rows="2" [placeholder]="'tasks.descriptionPlaceholder' | transloco"></textarea>
             </div>
+            <div class="form-row">
+              <label>{{ 'tasks.dueDays' | transloco }}</label>
+              <input formControlName="dueDays" type="number" min="1" [placeholder]="'tasks.dueDaysPlaceholder' | transloco" />
+            </div>
             <button type="submit" class="btn-primary" [disabled]="createFg.invalid">
               {{ 'tasks.createTask' | transloco }}
             </button>
@@ -48,24 +52,57 @@ import { TaskDefinition } from '../../models/api.models';
             <tr>
               <th>{{ 'tasks.colName' | transloco }}</th>
               <th>{{ 'tasks.colDescription' | transloco }}</th>
+              <th>{{ 'tasks.dueDays' | transloco }}</th>
               <th>{{ 'common.actions' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
             @for (task of tasks(); track task.taskId) {
-              <tr>
-                <td>{{ task.name }}</td>
-                <td>{{ task.description || '—' }}</td>
-                <td>
-                  <button class="btn-sm btn-danger" (click)="deleteTask(task.taskId)">
-                    {{ 'common.delete' | transloco }}
-                  </button>
-                </td>
-              </tr>
+              @if (editingId() === task.taskId) {
+                <tr class="edit-row">
+                  <td>
+                    <input class="inline-input" [formControl]="editFg.controls.name" />
+                  </td>
+                  <td>
+                    <input class="inline-input" [formControl]="editFg.controls.description" [placeholder]="'tasks.descriptionPlaceholder' | transloco" />
+                  </td>
+                  <td>
+                    <input class="inline-input inline-input--narrow" type="number" min="1" [formControl]="editFg.controls.dueDays" [placeholder]="'tasks.dueDaysPlaceholder' | transloco" />
+                  </td>
+                  <td class="edit-actions">
+                    <button class="btn-sm btn-primary" (click)="saveEdit(task.taskId)" [disabled]="editFg.invalid">
+                      {{ 'common.save' | transloco }}
+                    </button>
+                    <button class="btn-sm btn-secondary" (click)="cancelEdit()">
+                      {{ 'common.cancel' | transloco }}
+                    </button>
+                  </td>
+                </tr>
+              } @else {
+                <tr>
+                  <td>{{ task.name }}</td>
+                  <td>{{ task.description || '—' }}</td>
+                  <td>
+                    @if (task.dueDays) {
+                      <span class="due-days-badge">{{ task.dueDays }}d</span>
+                    } @else {
+                      <span style="color:var(--tx4)">—</span>
+                    }
+                  </td>
+                  <td>
+                    <button class="btn-sm btn-secondary" (click)="startEdit(task)">
+                      {{ 'common.edit' | transloco }}
+                    </button>
+                    <button class="btn-sm btn-danger" (click)="deleteTask(task.taskId)" disabled>
+                      {{ 'common.delete' | transloco }}
+                    </button>
+                  </td>
+                </tr>
+              }
             }
             @if (tasks().length === 0) {
               <tr>
-                <td colspan="3" style="text-align:center;color:var(--tx3);padding:2rem">
+                <td colspan="4" style="text-align:center;color:var(--tx3);padding:2rem">
                   {{ 'tasks.empty' | transloco }}
                 </td>
               </tr>
@@ -74,7 +111,43 @@ import { TaskDefinition } from '../../models/api.models';
         </table>
       }
     </div>
-  `
+  `,
+  styles: [`
+    .due-days-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(245,158,11,0.12);
+      color: #f59e0b;
+      border: 1px solid rgba(245,158,11,0.3);
+    }
+
+    .edit-row td {
+      background: var(--sf2);
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .inline-input {
+      width: 100%;
+      font-size: 0.875rem;
+      padding: 0.3rem 0.5rem;
+      background: var(--sf);
+      color: var(--tx);
+      border: 1px solid var(--bdi);
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .inline-input:focus { border-color: var(--accent); }
+
+    .inline-input--narrow { max-width: 120px; }
+
+    .edit-actions { display: flex; gap: 0.4rem; align-items: center; }
+  `]
 })
 export class TaskListComponent implements OnInit {
   private taskService = inject(TaskDefinitionService);
@@ -84,10 +157,18 @@ export class TaskListComponent implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   showCreateForm = signal(false);
+  editingId = signal<number | null>(null);
 
   createFg = this.fb.group({
     name: ['', Validators.required],
-    description: ['']
+    description: [''],
+    dueDays: [null as number | null]
+  });
+
+  editFg = this.fb.group({
+    name: ['', Validators.required],
+    description: [''],
+    dueDays: [null as number | null]
   });
 
   ngOnInit() { this.load(); }
@@ -107,13 +188,39 @@ export class TaskListComponent implements OnInit {
 
   submit() {
     if (this.createFg.invalid) return;
-    const { name, description } = this.createFg.value;
-    this.taskService.create(name!, description || null).subscribe({
+    const { name, description, dueDays } = this.createFg.value;
+    this.taskService.create(name!, description || null, dueDays ?? null).subscribe({
       next: task => {
         this.tasks.update(ts => [...ts, task]);
         this.toggleCreateForm();
       },
       error: () => this.error.set('Failed to create task')
+    });
+  }
+
+  startEdit(task: TaskDefinition) {
+    this.editingId.set(task.taskId);
+    this.editFg.setValue({
+      name: task.name,
+      description: task.description ?? '',
+      dueDays: task.dueDays ?? null
+    });
+  }
+
+  cancelEdit() {
+    this.editingId.set(null);
+    this.editFg.reset();
+  }
+
+  saveEdit(taskId: number) {
+    if (this.editFg.invalid) return;
+    const { name, description, dueDays } = this.editFg.value;
+    this.taskService.update(taskId, { name: name!, description: description || null, dueDays: dueDays ?? null }).subscribe({
+      next: updated => {
+        this.tasks.update(ts => ts.map(t => t.taskId === taskId ? updated : t));
+        this.cancelEdit();
+      },
+      error: () => this.error.set('Failed to update task')
     });
   }
 

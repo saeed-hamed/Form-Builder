@@ -12,4 +12,10 @@ export class TaskBoardService extends FormApiService {
   updateStatus(submissionTaskId: number, status: string) {
     return this.patch<ApiResponse<string>>(`/api/task-board/${submissionTaskId}/status`, { status });
   }
+
+  assign(submissionTaskId: number, userId: number | null) {
+    return this.patch<ApiResponse<string>>(`/api/task-board/${submissionTaskId}/assign`, { userId });
+  }
+
+
 }

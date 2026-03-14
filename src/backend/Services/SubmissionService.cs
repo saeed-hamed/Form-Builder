@@ -89,6 +89,10 @@ public class SubmissionService : ISubmissionService
     public Task<bool> UpdateTaskStatusAsync(int submissionTaskId, string status)
         => _submissionRepo.UpdateTaskStatusAsync(submissionTaskId, status);
 
+    public Task<bool> AssignTaskAsync(int submissionTaskId, int? userId)
+        => _submissionRepo.AssignTaskAsync(submissionTaskId, userId);
+
+
     private static SubmissionResponse MapToResponse(SubmissionFullData data) => new()
     {
         SubmissionId = data.Submission.SubmissionId,

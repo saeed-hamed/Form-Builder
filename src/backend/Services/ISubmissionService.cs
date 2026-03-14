@@ -10,4 +10,5 @@ public interface ISubmissionService
     Task<IEnumerable<SubmissionResponse>> GetAllAsync();
     Task<IEnumerable<TaskBoardItemResponse>> GetTaskBoardAsync();
     Task<bool> UpdateTaskStatusAsync(int submissionTaskId, string status);
+    Task<bool> AssignTaskAsync(int submissionTaskId, int? userId);
 }

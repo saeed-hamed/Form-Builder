@@ -214,7 +214,7 @@ import { SubmissionResponse, Form, Field } from '../models/api.models';
       transition: border-color 0.15s;
     }
 
-    .sub-card.has-tasks { border-left: 3px solid #f59e0b; }
+    .sub-card.has-tasks { border-left: 3px solid #164117; }
 
     .sub-card-main {
       display: flex;

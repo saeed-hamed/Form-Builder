@@ -65,6 +65,9 @@ public class TaskBoardItemResponse
     public string FormTitle { get; set; } = string.Empty;
     public string SubmittedBy { get; set; } = string.Empty;
     public DateTime SubmittedAt { get; set; }
+    public int? AssignedToUserId { get; set; }
+    public string? AssignedToName { get; set; }
+    public DateTime? DueDate { get; set; }
 }
 
 public class UpdateTaskStatusRequest
@@ -72,3 +75,9 @@ public class UpdateTaskStatusRequest
     [Required]
     public string Status { get; set; } = string.Empty;
 }
+
+public class AssignTaskRequest
+{
+    public int? UserId { get; set; }
+}
+

@@ -60,7 +60,7 @@ import { Form } from '../../models/api.models';
                   <a class="btn-sm btn-secondary" [routerLink]="['/forms', form.formId]">
                     {{ 'forms.open' | transloco }}
                   </a>
-                  <button class="btn-sm btn-danger" (click)="deleteForm(form.formId, form.title)">
+                  <button class="btn-sm btn-danger" (click)="deleteForm(form.formId, form.title)" disabled>
                     {{ 'common.delete' | transloco }}
                   </button>
                 </td>

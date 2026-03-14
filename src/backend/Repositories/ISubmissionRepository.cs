@@ -23,4 +23,5 @@ public interface ISubmissionRepository
     Task<IEnumerable<FormSubmission>> GetAllAsync();
     Task<IEnumerable<TaskBoardItemResponse>> GetAllTaskBoardAsync();
     Task<bool> UpdateTaskStatusAsync(int submissionTaskId, string status);
+    Task<bool> AssignTaskAsync(int submissionTaskId, int? userId);
 }

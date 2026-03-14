@@ -9,8 +9,12 @@ export class TaskDefinitionService extends FormApiService {
     return this.get<ApiResponse<TaskDefinition[]>>('/api/tasks').pipe(map(r => r.data));
   }
 
-  create(name: string, description: string | null) {
-    return this.post<ApiResponse<TaskDefinition>>('/api/tasks', { name, description }).pipe(map(r => r.data));
+  create(name: string, description: string | null, dueDays: number | null) {
+    return this.post<ApiResponse<TaskDefinition>>('/api/tasks', { name, description, dueDays }).pipe(map(r => r.data));
+  }
+
+  update(id: number, payload: { name: string; description: string | null; dueDays: number | null }) {
+    return this.put<ApiResponse<TaskDefinition>>(`/api/tasks/${id}`, payload).pipe(map(r => r.data));
   }
 
   deleteById(id: number) {
