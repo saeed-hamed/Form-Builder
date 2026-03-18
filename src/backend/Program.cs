@@ -62,6 +62,7 @@ builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskTriggerRepository, TaskTriggerRepository>();
 builder.Services.AddScoped<IConditionalRuleRepository, ConditionalRuleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITaskNoteRepository, TaskNoteRepository>();
 
 // Services
 builder.Services.AddScoped<IFormService, FormService>();
@@ -72,6 +73,7 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskTriggerService, TaskTriggerService>();
 builder.Services.AddScoped<IConditionalRuleService, ConditionalRuleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITaskNoteService, TaskNoteService>();
 builder.Services.AddScoped<IRuleEngine, RuleEngine>();
 
 builder.Services.AddOpenApi();

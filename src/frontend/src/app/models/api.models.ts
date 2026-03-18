@@ -13,12 +13,14 @@ export interface LookupValue {
 export interface Lookup {
   lookupId: number;
   name: string;
+  nameAr: string | null;
   values: LookupValue[];
 }
 
 export interface TaskDefinition {
   taskId: number;
   name: string;
+  nameAr: string | null;
   description: string | null;
   dueDays: number | null;
 }
@@ -52,7 +54,7 @@ export interface Field {
   fieldKey: string;
   label: string;
   labelAr: string | null;
-  fieldType: 'yes_no' | 'list' | 'date' | 'text' | 'number' | 'repeater';
+  fieldType: 'yes_no' | 'list' | 'date' | 'text' | 'number' | 'repeater' | 'textarea' | 'multi_select' | 'rating' | 'section_header';
   lookupId: number | null;
   orderIndex: number;
   required: boolean;
@@ -121,6 +123,7 @@ export interface TaskBoardItem {
   submissionTaskId: number;
   taskId: number;
   taskName: string;
+  taskNameAr: string | null;
   status: 'Pending' | 'In Progress' | 'Completed';
   createdAt: string;
   completedAt: string | null;
@@ -131,6 +134,14 @@ export interface TaskBoardItem {
   assignedToUserId: number | null;
   assignedToName: string | null;
   dueDate: string | null;
+}
+
+export interface TaskNote {
+  noteId: number;
+  submissionTaskId: number;
+  author: string;
+  body: string;
+  createdAt: string;
 }
 
 export interface User {

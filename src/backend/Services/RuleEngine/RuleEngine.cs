@@ -47,7 +47,7 @@ public class RuleEngine : IRuleEngine
     {
         var results = conditionDef.Conditions.Select(c => EvaluateCondition(c, fieldValues));
 
-        return conditionDef.LogicalOperator.ToUpperInvariant() == "OR"
+        return conditionDef.Combinator.ToUpperInvariant() == "OR"
             ? results.Any(r => r)
             : results.All(r => r); // Default: AND
     }

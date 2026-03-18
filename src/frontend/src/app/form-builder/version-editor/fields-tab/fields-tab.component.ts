@@ -4,6 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { VersionService } from '../../../services/version.service';
 import { LookupService } from '../../../services/lookup.service';
 import { Field, Lookup, SubField } from '../../../models/api.models';
+import { DirectionService } from '../../../services/direction.service';
 
 @Component({
   selector: 'app-fields-tab',
@@ -46,24 +47,28 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
                 <select formControlName="fieldType" (change)="onTypeChange()">
                   <option value="yes_no">{{ 'fieldType.yes_no' | transloco }}</option>
                   <option value="list">{{ 'fieldType.list' | transloco }}</option>
+                  <option value="multi_select">{{ 'fieldType.multi_select' | transloco }}</option>
                   <option value="date">{{ 'fieldType.date' | transloco }}</option>
                   <option value="text">{{ 'fieldType.text' | transloco }}</option>
+                  <option value="textarea">{{ 'fieldType.textarea' | transloco }}</option>
                   <option value="number">{{ 'fieldType.number' | transloco }}</option>
+                  <option value="rating">{{ 'fieldType.rating' | transloco }}</option>
+                  <option value="section_header">{{ 'fieldType.section_header' | transloco }}</option>
                   <option value="repeater">{{ 'fieldType.repeater' | transloco }}</option>
                 </select>
               </div>
-              @if (fieldFg.value.fieldType === 'list') {
+              @if (fieldFg.value.fieldType === 'list' || fieldFg.value.fieldType === 'multi_select') {
                 <div class="form-row">
                   <label>{{ 'fields.lookupLabel' | transloco }}</label>
                   <select formControlName="lookupId">
                     <option [value]="null">{{ 'fields.lookupSelect' | transloco }}</option>
                     @for (l of lookups(); track l.lookupId) {
-                      <option [value]="l.lookupId">{{ l.name }}</option>
+                      <option [value]="l.lookupId">{{ lookupLabel(l) }}</option>
                     }
                   </select>
                 </div>
               }
-              @if (fieldFg.value.fieldType === 'text' || fieldFg.value.fieldType === 'number') {
+              @if (fieldFg.value.fieldType === 'text' || fieldFg.value.fieldType === 'number' || fieldFg.value.fieldType === 'textarea') {
                 <div class="form-row">
                   <label>{{ 'fields.placeholderLabel' | transloco }} <span style="font-weight:400;color:var(--tx3)">{{ 'fields.placeholderOptional' | transloco }}</span></label>
                   <input formControlName="placeholder" [placeholder]="'fields.phInputPlaceholder' | transloco" />
@@ -107,7 +112,7 @@ import { Field, Lookup, SubField } from '../../../models/api.models';
                               <select class="sf-select" [value]="sf.lookupId ?? ''" (change)="updateSubField(i, 'lookupId', $any($event.target).value)">
                                 <option value="">—</option>
                                 @for (l of lookups(); track l.lookupId) {
-                                  <option [value]="l.lookupId">{{ l.name }}</option>
+                                  <option [value]="l.lookupId">{{ lookupLabel(l) }}</option>
                                 }
                               </select>
                             } @else {
@@ -257,6 +262,7 @@ export class FieldsTabComponent implements OnInit {
   private versionService = inject(VersionService);
   private lookupService = inject(LookupService);
   private fb = inject(FormBuilder);
+  private dir = inject(DirectionService);
 
   fields = signal<Field[]>([]);
   lookups = signal<Lookup[]>([]);
@@ -313,7 +319,7 @@ export class FieldsTabComponent implements OnInit {
 
   onTypeChange() {
     const type = this.fieldFg.value.fieldType;
-    if (type !== 'list') {
+    if (type !== 'list' && type !== 'multi_select') {
       this.fieldFg.patchValue({ lookupId: null });
     }
     if (type !== 'repeater') {
@@ -358,7 +364,7 @@ export class FieldsTabComponent implements OnInit {
         label: v.label!,
         labelAr: v.labelAr ?? null,
         fieldType: v.fieldType!,
-        lookupId: v.fieldType === 'list' ? (v.lookupId ?? null) : null,
+        lookupId: (v.fieldType === 'list' || v.fieldType === 'multi_select') ? (v.lookupId ?? null) : null,
         orderIndex: editing.orderIndex,
         required: v.required ?? false,
         placeholder,
@@ -374,7 +380,7 @@ export class FieldsTabComponent implements OnInit {
         label: v.label!,
         labelAr: v.labelAr ?? null,
         fieldType: v.fieldType!,
-        lookupId: v.fieldType === 'list' ? (v.lookupId ?? null) : null,
+        lookupId: (v.fieldType === 'list' || v.fieldType === 'multi_select') ? (v.lookupId ?? null) : null,
         orderIndex: maxIndex + 1,
         required: v.required ?? false,
         placeholder,
@@ -469,5 +475,9 @@ export class FieldsTabComponent implements OnInit {
 
   typeLabel(type: string): string {
     return `fieldType.${type}`;
+  }
+
+  lookupLabel(l: Lookup): string {
+    return (this.dir.isRtl() && l.nameAr) ? l.nameAr : l.name;
   }
 }

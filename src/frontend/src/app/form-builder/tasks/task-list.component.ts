@@ -26,8 +26,12 @@ import { TaskDefinition } from '../../models/api.models';
           <h3>{{ 'tasks.newTaskCard' | transloco }}</h3>
           <form [formGroup]="createFg" (ngSubmit)="submit()">
             <div class="form-row">
-              <label>{{ 'common.name' | transloco }}</label>
+              <label>{{ 'common.name' | transloco }} <span class="lang-badge">EN</span></label>
               <input formControlName="name" [placeholder]="'tasks.namePlaceholder' | transloco" />
+            </div>
+            <div class="form-row">
+              <label>{{ 'tasks.nameAr' | transloco }} <span class="lang-badge lang-badge--ar">AR</span></label>
+              <input formControlName="nameAr" dir="rtl" placeholder="مثال: التحقق من التوظيف" />
             </div>
             <div class="form-row">
               <label>{{ 'common.description' | transloco }}</label>
@@ -51,6 +55,7 @@ import { TaskDefinition } from '../../models/api.models';
           <thead>
             <tr>
               <th>{{ 'tasks.colName' | transloco }}</th>
+              <th>{{ 'tasks.nameAr' | transloco }}</th>
               <th>{{ 'tasks.colDescription' | transloco }}</th>
               <th>{{ 'tasks.dueDays' | transloco }}</th>
               <th>{{ 'common.actions' | transloco }}</th>
@@ -62,6 +67,9 @@ import { TaskDefinition } from '../../models/api.models';
                 <tr class="edit-row">
                   <td>
                     <input class="inline-input" [formControl]="editFg.controls.name" />
+                  </td>
+                  <td>
+                    <input class="inline-input" dir="rtl" [formControl]="editFg.controls.nameAr" placeholder="الاسم بالعربية" />
                   </td>
                   <td>
                     <input class="inline-input" [formControl]="editFg.controls.description" [placeholder]="'tasks.descriptionPlaceholder' | transloco" />
@@ -81,6 +89,7 @@ import { TaskDefinition } from '../../models/api.models';
               } @else {
                 <tr>
                   <td>{{ task.name }}</td>
+                  <td dir="rtl" style="text-align:right">{{ task.nameAr || '—' }}</td>
                   <td>{{ task.description || '—' }}</td>
                   <td>
                     @if (task.dueDays) {
@@ -161,12 +170,14 @@ export class TaskListComponent implements OnInit {
 
   createFg = this.fb.group({
     name: ['', Validators.required],
+    nameAr: [''],
     description: [''],
     dueDays: [null as number | null]
   });
 
   editFg = this.fb.group({
     name: ['', Validators.required],
+    nameAr: [''],
     description: [''],
     dueDays: [null as number | null]
   });
@@ -188,8 +199,8 @@ export class TaskListComponent implements OnInit {
 
   submit() {
     if (this.createFg.invalid) return;
-    const { name, description, dueDays } = this.createFg.value;
-    this.taskService.create(name!, description || null, dueDays ?? null).subscribe({
+    const { name, nameAr, description, dueDays } = this.createFg.value;
+    this.taskService.create(name!, nameAr || null, description || null, dueDays ?? null).subscribe({
       next: task => {
         this.tasks.update(ts => [...ts, task]);
         this.toggleCreateForm();
@@ -202,6 +213,7 @@ export class TaskListComponent implements OnInit {
     this.editingId.set(task.taskId);
     this.editFg.setValue({
       name: task.name,
+      nameAr: task.nameAr ?? '',
       description: task.description ?? '',
       dueDays: task.dueDays ?? null
     });
@@ -214,8 +226,8 @@ export class TaskListComponent implements OnInit {
 
   saveEdit(taskId: number) {
     if (this.editFg.invalid) return;
-    const { name, description, dueDays } = this.editFg.value;
-    this.taskService.update(taskId, { name: name!, description: description || null, dueDays: dueDays ?? null }).subscribe({
+    const { name, nameAr, description, dueDays } = this.editFg.value;
+    this.taskService.update(taskId, { name: name!, nameAr: nameAr || null, description: description || null, dueDays: dueDays ?? null }).subscribe({
       next: updated => {
         this.tasks.update(ts => ts.map(t => t.taskId === taskId ? updated : t));
         this.cancelEdit();

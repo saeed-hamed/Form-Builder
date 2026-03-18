@@ -140,7 +140,7 @@ public class SubmissionRepository : ISubmissionRepository
     public async Task<IEnumerable<TaskBoardItemResponse>> GetAllTaskBoardAsync()
     {
         return await _db.QueryAsync<TaskBoardItemResponse>("""
-            SELECT st.SubmissionTaskId, st.TaskId, t.Name AS TaskName,
+            SELECT st.SubmissionTaskId, st.TaskId, t.Name AS TaskName, t.NameAr AS TaskNameAr,
                    st.Status, st.CreatedAt, st.CompletedAt, st.SubmissionId,
                    f.Title AS FormTitle, fs.SubmittedBy, fs.SubmittedAt,
                    st.AssignedToUserId, u.Name AS AssignedToName,

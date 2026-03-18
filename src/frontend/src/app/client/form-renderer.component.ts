@@ -76,10 +76,12 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
             <!-- Dynamic fields -->
             @for (field of visibleFields(); track field.fieldId) {
               <div class="field-group" [class.field-required]="field.required">
-                <label class="field-label">
-                  {{ fieldLabel(field) }}
-                  @if (field.required) { <span class="required-star">*</span> }
-                </label>
+                @if (field.fieldType !== 'section_header') {
+                  <label class="field-label">
+                    {{ fieldLabel(field) }}
+                    @if (field.required) { <span class="required-star">*</span> }
+                  </label>
+                }
 
                 @if (field.fieldType === 'yes_no') {
                   <div class="radio-group">
@@ -129,6 +131,47 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                     (input)="setValue(field.fieldKey, $any($event.target).value)" />
                 }
 
+                @if (field.fieldType === 'textarea') {
+                  <textarea class="field-input field-textarea"
+                    [value]="values()[field.fieldKey] || ''"
+                    [placeholder]="field.placeholder || ''"
+                    rows="4"
+                    (input)="setValue(field.fieldKey, $any($event.target).value)"></textarea>
+                }
+
+                @if (field.fieldType === 'multi_select') {
+                  <div class="checkbox-group">
+                    @for (opt of lookupOptions(field.lookupId); track opt.lookupValueId) {
+                      <label class="checkbox-option">
+                        <input type="checkbox"
+                          [checked]="isChecked(field.fieldKey, opt.value)"
+                          (change)="toggleMultiSelect(field.fieldKey, opt.value, $any($event.target).checked)" />
+                        <span>{{ optionLabel(opt) }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+
+                @if (field.fieldType === 'rating') {
+                  <div class="rating-group">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <button type="button" class="star-btn"
+                        [class.active]="ratingValue(field.fieldKey) >= star"
+                        (click)="setValue(field.fieldKey, starStr(star))">★</button>
+                    }
+                    @if (ratingValue(field.fieldKey) > 0) {
+                      <span class="rating-label">{{ ratingValue(field.fieldKey) }}/5</span>
+                    }
+                  </div>
+                }
+
+                @if (field.fieldType === 'section_header') {
+                  <div class="section-header-divider">
+                    <hr class="section-hr" />
+                    <h4 class="section-heading">{{ fieldLabel(field) }}</h4>
+                  </div>
+                }
+
                 @if (field.fieldType === 'repeater') {
                   <div class="repeater-wrap">
                     @if (repeaterSubFields(field).length === 0) {
@@ -161,7 +204,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                                       (change)="onRepeaterCell(field.fieldKey, ri, sf.key, $any($event.target).value)">
                                       <option value="">—</option>
                                       @for (opt of lookupOptions(sf.lookupId ?? null); track opt.lookupValueId) {
-                                        <option [value]="opt.value">{{ opt.value }}</option>
+                                        <option [value]="opt.value">{{ optionLabel(opt) }}</option>
                                       }
                                     </select>
                                   }
@@ -327,6 +370,30 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
     }
 
     .radio-group { display: flex; gap: 1.25rem; }
+
+    .field-textarea {
+      resize: vertical;
+      min-height: 90px;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+
+    .checkbox-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .checkbox-option { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--tx); cursor: pointer; }
+    .checkbox-option input[type="checkbox"] { width: 1rem; height: 1rem; cursor: pointer; accent-color: var(--accent); }
+
+    .rating-group { display: flex; align-items: center; gap: 0.25rem; }
+    .star-btn {
+      background: none; border: none; font-size: 1.75rem; cursor: pointer;
+      color: var(--bd); transition: color 0.1s, transform 0.1s; line-height: 1; padding: 0;
+    }
+    .star-btn.active { color: #f59e0b; }
+    .star-btn:hover { transform: scale(1.2); }
+    .rating-label { font-size: 0.8rem; color: var(--tx4); margin-left: 0.5rem; }
+
+    .section-header-divider { padding: 0.25rem 0; }
+    .section-hr { border: none; border-top: 1px solid var(--bd); margin: 0 0 0.625rem; }
+    .section-heading { font-size: 0.9375rem; font-weight: 700; color: var(--tx2); margin: 0; letter-spacing: -0.01em; }
 
     .radio-option {
       display: flex;
@@ -720,6 +787,26 @@ export class FormRendererComponent implements OnInit {
     this.setValue(fieldKey, JSON.stringify(this.repeaterRows(fieldKey).filter((_, i) => i !== index)));
   }
 
+  isChecked(fieldKey: string, value: string): boolean {
+    const stored = this.values()[fieldKey] ?? '';
+    return stored.split(',').map(v => v.trim()).includes(value);
+  }
+
+  toggleMultiSelect(fieldKey: string, value: string, checked: boolean) {
+    const current = this.values()[fieldKey] ?? '';
+    const parts = current ? current.split(',').map(v => v.trim()).filter(v => v) : [];
+    const next = checked ? [...parts, value] : parts.filter(v => v !== value);
+    this.setValue(fieldKey, next.join(','));
+  }
+
+  ratingValue(fieldKey: string): number {
+    return parseInt(this.values()[fieldKey] ?? '0', 10) || 0;
+  }
+
+  starStr(n: number): string {
+    return String(n);
+  }
+
   onRepeaterCell(fieldKey: string, rowIndex: number, cellKey: string, value: string) {
     const rows = this.repeaterRows(fieldKey).map((r, i) =>
       i === rowIndex ? { ...r, [cellKey]: value } : r
@@ -734,6 +821,7 @@ export class FormRendererComponent implements OnInit {
 
     const vals = this.values();
     const submissionValues = this.visibleFields()
+      .filter(f => f.fieldType !== 'section_header')
       .map(f => ({ fieldId: f.fieldId, value: vals[f.fieldKey] ?? '' }));
 
     const nameField = this.fields().find(f =>
