@@ -34,12 +34,17 @@ public class LookupService : ILookupService
 
     public async Task<LookupResponse> CreateLookupAsync(CreateLookupRequest request)
     {
-        var lookupId = await _repo.CreateAsync(request.Name);
+        var lookupId = await _repo.CreateAsync(request.Name, request.NameAr);
         for (int i = 0; i < request.Values.Count; i++)
         {
-            await _repo.AddValueAsync(lookupId, request.Values[i], null, i + 1);
+            await _repo.AddValueAsync(lookupId, request.Values[i].Value, request.Values[i].ValueAr, i + 1);
         }
         return (await GetLookupByIdAsync(lookupId))!;
+    }
+
+    public async Task<bool> UpdateLookupNameAsync(int lookupId, UpdateLookupNameRequest request)
+    {
+        return await _repo.UpdateNameAsync(lookupId, request.Name, request.NameAr);
     }
 
     public async Task<bool> DeleteLookupAsync(int lookupId)
@@ -60,6 +65,11 @@ public class LookupService : ILookupService
         };
     }
 
+    public async Task<bool> UpdateValueArAsync(int lookupValueId, UpdateLookupValueRequest request)
+    {
+        return await _repo.UpdateValueArAsync(lookupValueId, request.ValueAr);
+    }
+
     public async Task<bool> DeleteValueAsync(int lookupValueId)
     {
         return await _repo.DeleteValueAsync(lookupValueId);
@@ -69,6 +79,7 @@ public class LookupService : ILookupService
     {
         LookupId = l.LookupId,
         Name = l.Name,
+        NameAr = l.NameAr,
         Values = values.Select(v => new LookupValueResponse
         {
             LookupValueId = v.LookupValueId,

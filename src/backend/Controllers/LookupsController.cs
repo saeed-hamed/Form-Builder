@@ -40,6 +40,15 @@ public class LookupsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = lookup.LookupId }, new { data = lookup });
     }
 
+    // PATCH api/lookups/{id}
+    [HttpPatch("{id:int}")]
+    public async Task<IActionResult> UpdateName(int id, [FromBody] UpdateLookupNameRequest request)
+    {
+        var updated = await _lookupService.UpdateLookupNameAsync(id, request);
+        if (!updated) return NotFound(new { error = "Lookup not found" });
+        return Ok(new { data = "Lookup updated" });
+    }
+
     // DELETE api/lookups/{id}
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
@@ -58,6 +67,15 @@ public class LookupsController : ControllerBase
 
         var value = await _lookupService.AddValueAsync(id, request);
         return CreatedAtAction(nameof(GetById), new { id }, new { data = value });
+    }
+
+    // PATCH api/lookups/{id}/values/{valueId}
+    [HttpPatch("{id:int}/values/{valueId:int}")]
+    public async Task<IActionResult> UpdateValue(int id, int valueId, [FromBody] UpdateLookupValueRequest request)
+    {
+        var updated = await _lookupService.UpdateValueArAsync(valueId, request);
+        if (!updated) return NotFound(new { error = "Lookup value not found" });
+        return Ok(new { data = "Value updated" });
     }
 
     // DELETE api/lookups/{id}/values/{valueId}

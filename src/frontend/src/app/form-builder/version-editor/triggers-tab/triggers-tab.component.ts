@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } fr
 import { TranslocoPipe } from '@jsverse/transloco';
 import { VersionService } from '../../../services/version.service';
 import { TaskDefinitionService } from '../../../services/task-definition.service';
+import { DirectionService } from '../../../services/direction.service';
 import { TaskTrigger, TriggerConditionJson, TriggerCondition, Field, TaskDefinition } from '../../../models/api.models';
 
 const OPERATORS = [
@@ -40,7 +41,7 @@ const OPERATORS = [
                 <select formControlName="taskId">
                   <option [value]="0" disabled>{{ 'triggers.selectTask' | transloco }}</option>
                   @for (t of tasks(); track t.taskId) {
-                    <option [value]="t.taskId">{{ t.name }}</option>
+                    <option [value]="t.taskId">{{ taskLabel(t) }}</option>
                   }
                 </select>
               </div>
@@ -146,6 +147,7 @@ export class TriggersTabComponent implements OnInit {
   private versionService = inject(VersionService);
   private taskService = inject(TaskDefinitionService);
   private fb = inject(FormBuilder);
+  private dir = inject(DirectionService);
 
   triggers = signal<TaskTrigger[]>([]);
   fields = signal<Field[]>([]);
@@ -307,6 +309,10 @@ export class TriggersTabComponent implements OnInit {
 
   private parseConditionJson(trigger: TaskTrigger): TriggerConditionJson | null {
     try { return JSON.parse(trigger.conditionJson); } catch { return null; }
+  }
+
+  taskLabel(t: TaskDefinition): string {
+    return (this.dir.isRtl() && t.nameAr) ? t.nameAr : t.name;
   }
 
   describeCombinator(trigger: TaskTrigger): string {

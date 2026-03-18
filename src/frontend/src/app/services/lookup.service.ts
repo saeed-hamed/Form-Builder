@@ -13,8 +13,12 @@ export class LookupService extends FormApiService {
     return this.get<ApiResponse<Lookup>>(`/api/lookups/${id}`).pipe(map(r => r.data));
   }
 
-  create(name: string, values: string[]) {
-    return this.post<ApiResponse<Lookup>>('/api/lookups', { name, values }).pipe(map(r => r.data));
+  create(name: string, nameAr: string | null, values: { value: string; valueAr: string | null }[]) {
+    return this.post<ApiResponse<Lookup>>('/api/lookups', { name, nameAr, values }).pipe(map(r => r.data));
+  }
+
+  updateName(id: number, name: string, nameAr: string | null) {
+    return this.patch<ApiResponse<string>>(`/api/lookups/${id}`, { name, nameAr });
   }
 
   deleteById(id: number) {
@@ -23,6 +27,10 @@ export class LookupService extends FormApiService {
 
   addValue(lookupId: number, value: string, valueAr: string | null, orderIndex: number) {
     return this.post<ApiResponse<LookupValue>>(`/api/lookups/${lookupId}/values`, { value, valueAr, orderIndex }).pipe(map(r => r.data));
+  }
+
+  updateValueAr(lookupId: number, valueId: number, valueAr: string | null) {
+    return this.patch<ApiResponse<string>>(`/api/lookups/${lookupId}/values/${valueId}`, { valueAr });
   }
 
   deleteValue(lookupId: number, valueId: number) {

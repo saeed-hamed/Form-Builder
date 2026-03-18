@@ -82,9 +82,25 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                   >
                     <option value="">{{ 'renderer.selectOption' | transloco }}</option>
                     @for (opt of lookupOptions(field.lookupId); track opt.lookupValueId) {
-                      <option [value]="opt.value">{{ opt.value }}</option>
+                      <option [value]="opt.value">{{ optionLabel(opt) }}</option>
                     }
                   </select>
+                }
+
+                @if (field.fieldType === 'multi_select') {
+                  <div class="checkbox-group">
+                    @for (opt of lookupOptions(field.lookupId); track opt.lookupValueId) {
+                      <label class="checkbox-option">
+                        <input type="checkbox"
+                          [checked]="isChecked(field.fieldKey, opt.value)"
+                          (change)="toggleMultiSelect(field.fieldKey, opt.value, $any($event.target).checked)" />
+                        <span>{{ optionLabel(opt) }}</span>
+                      </label>
+                    }
+                    @if (lookupOptions(field.lookupId).length === 0) {
+                      <span class="preview-no-options">No lookup assigned</span>
+                    }
+                  </div>
                 }
 
                 @if (field.fieldType === 'date') {
@@ -143,7 +159,7 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
                                     <select class="rep-select" [value]="row[sf.key] || ''" (change)="onRepeaterCellChange(field.fieldKey, ri, sf.key, $any($event.target).value)">
                                       <option value="">—</option>
                                       @for (opt of lookupOptions(sf.lookupId ?? null); track opt.lookupValueId) {
-                                        <option [value]="opt.value">{{ opt.value }}</option>
+                                        <option [value]="opt.value">{{ optionLabel(opt) }}</option>
                                       }
                                     </select>
                                   }
@@ -342,6 +358,11 @@ import { Field, ConditionalRule, ConditionJsonPayload, Lookup, LookupValue, SubF
       vertical-align: middle;
     }
 
+    .checkbox-group { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.1rem; }
+    .checkbox-option { display: flex; align-items: center; gap: 0.45rem; font-size: 0.85rem; color: var(--tx); cursor: pointer; }
+    .checkbox-option input[type="checkbox"] { width: 0.9rem; height: 0.9rem; cursor: pointer; accent-color: #10b981; flex-shrink: 0; }
+    .preview-no-options { font-size: 0.78rem; color: var(--tx3); font-style: italic; }
+
     .rep-input, .rep-select {
       width: 100%;
       padding: 0.25rem 0.375rem;
@@ -489,6 +510,22 @@ export class FormPreviewComponent implements OnChanges {
     if (!lookupId) return [];
     const lkp = this.lookups().find(l => l.lookupId === lookupId);
     return lkp ? [...lkp.values].sort((a, b) => a.orderIndex - b.orderIndex) : [];
+  }
+
+  optionLabel(opt: LookupValue): string {
+    return (this.dir.isRtl() && opt.valueAr) ? opt.valueAr : opt.value;
+  }
+
+  isChecked(fieldKey: string, value: string): boolean {
+    const stored = this.previewValues()[fieldKey] ?? '';
+    return stored.split(',').map(v => v.trim()).includes(value);
+  }
+
+  toggleMultiSelect(fieldKey: string, value: string, checked: boolean) {
+    const current = this.previewValues()[fieldKey] ?? '';
+    const parts = current ? current.split(',').map(v => v.trim()).filter(v => v) : [];
+    const next = checked ? [...parts, value] : parts.filter(v => v !== value);
+    this.onValueChange(fieldKey, next.join(','));
   }
 
   repeaterSubFields(field: Field): SubField[] {

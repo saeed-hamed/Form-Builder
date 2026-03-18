@@ -16,13 +16,13 @@ public class LookupRepository : ILookupRepository
     public async Task<IEnumerable<Lookup>> GetAllAsync()
     {
         return await _db.QueryAsync<Lookup>(
-            "SELECT LookupId, Name FROM Lookups ORDER BY Name");
+            "SELECT LookupId, Name, NameAr FROM Lookups ORDER BY Name");
     }
 
     public async Task<Lookup?> GetByIdAsync(int lookupId)
     {
         return await _db.QuerySingleOrDefaultAsync<Lookup>(
-            "SELECT LookupId, Name FROM Lookups WHERE LookupId = @LookupId",
+            "SELECT LookupId, Name, NameAr FROM Lookups WHERE LookupId = @LookupId",
             new { LookupId = lookupId });
     }
 
@@ -33,13 +33,21 @@ public class LookupRepository : ILookupRepository
             new { LookupId = lookupId });
     }
 
-    public async Task<int> CreateAsync(string name)
+    public async Task<int> CreateAsync(string name, string? nameAr)
     {
         return await _db.ExecuteScalarAsync<int>("""
-            INSERT INTO Lookups (Name) VALUES (@Name);
+            INSERT INTO Lookups (Name, NameAr) VALUES (@Name, @NameAr);
             SELECT CAST(SCOPE_IDENTITY() AS INT);
             """,
-            new { Name = name });
+            new { Name = name, NameAr = nameAr });
+    }
+
+    public async Task<bool> UpdateNameAsync(int lookupId, string name, string? nameAr)
+    {
+        var rows = await _db.ExecuteAsync(
+            "UPDATE Lookups SET Name = @Name, NameAr = @NameAr WHERE LookupId = @LookupId",
+            new { Name = name, NameAr = nameAr, LookupId = lookupId });
+        return rows > 0;
     }
 
     public async Task<bool> DeleteAsync(int lookupId)
@@ -58,6 +66,14 @@ public class LookupRepository : ILookupRepository
             SELECT CAST(SCOPE_IDENTITY() AS INT);
             """,
             new { LookupId = lookupId, Value = value, ValueAr = valueAr, OrderIndex = orderIndex });
+    }
+
+    public async Task<bool> UpdateValueArAsync(int lookupValueId, string? valueAr)
+    {
+        var rows = await _db.ExecuteAsync(
+            "UPDATE LookupValues SET ValueAr = @ValueAr WHERE LookupValueId = @LookupValueId",
+            new { ValueAr = valueAr, LookupValueId = lookupValueId });
+        return rows > 0;
     }
 
     public async Task<bool> DeleteValueAsync(int lookupValueId)

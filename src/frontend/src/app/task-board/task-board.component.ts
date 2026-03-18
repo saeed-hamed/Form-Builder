@@ -3,7 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { TaskBoardService } from '../services/task-board.service';
 import { UserService } from '../services/user.service';
+import { DirectionService } from '../services/direction.service';
 import { TaskBoardItem, User } from '../models/api.models';
+import { TaskDetailModalComponent } from './task-detail-modal/task-detail-modal.component';
 
 type Status = 'Pending' | 'In Progress' | 'Completed';
 
@@ -16,7 +18,7 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
 @Component({
   selector: 'app-task-board',
   standalone: true,
-  imports: [TranslocoPipe, FormsModule],
+  imports: [TranslocoPipe, FormsModule, TaskDetailModalComponent],
   template: `
     <div class="board-page">
 
@@ -34,6 +36,36 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
             </div>
           }
         </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label class="filter-label">{{ 'board.filterForm' | transloco }}</label>
+          <select class="filter-select" [(ngModel)]="filterForm">
+            <option value="">{{ 'board.filterAll' | transloco }}</option>
+            @for (f of distinctForms(); track f) {
+              <option [value]="f">{{ f }}</option>
+            }
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">{{ 'board.filterAssignee' | transloco }}</label>
+          <select class="filter-select" [(ngModel)]="filterAssignee">
+            <option value="">{{ 'board.filterAll' | transloco }}</option>
+            <option value="__unassigned__">{{ 'taskBoard.unassigned' | transloco }}</option>
+            @for (u of distinctAssignees(); track u) {
+              <option [value]="u">{{ u }}</option>
+            }
+          </select>
+        </div>
+        <label class="filter-check">
+          <input type="checkbox" [(ngModel)]="filterOverdue" />
+          {{ 'board.filterOverdue' | transloco }}
+        </label>
+        @if (isFiltered()) {
+          <button class="btn-ghost btn-sm" (click)="clearFilters()">{{ 'board.clearFilters' | transloco }}</button>
+        }
       </div>
 
       @if (error()) {
@@ -62,13 +94,13 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
                   <span [style.color]="col.color">{{ col.labelKey | transloco }}</span>
                 </div>
                 <span class="column-count" [style.background]="col.bg" [style.color]="col.color">
-                  {{ countFor(col.status) }}
+                  {{ filteredTasksFor(col.status).length }}
                 </span>
               </div>
 
               <!-- Cards -->
               <div class="column-body">
-                @for (task of tasksFor(col.status); track task.submissionTaskId) {
+                @for (task of filteredTasksFor(col.status); track task.submissionTaskId) {
                   <div
                     class="task-card"
                     draggable="true"
@@ -80,7 +112,22 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
                     <div class="card-accent" [style.background]="col.dot"></div>
 
                     <div class="card-body">
-                      <div class="card-task-name">{{ task.taskName }}</div>
+                      <div class="card-header-row">
+                        <div class="card-task-name">{{ taskLabel(task) }}</div>
+                        <div class="card-header-actions">
+                          <span class="card-date">{{ timeAgo(task.createdAt) }}</span>
+                          <button
+                            class="card-view-btn"
+                            (click)="$event.stopPropagation(); openModal(task)"
+                            title="View details"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
 
                       <div class="card-meta">
                         <div class="card-meta-row">
@@ -133,17 +180,16 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
                         }
                       </div>
 
-                      <div class="card-footer">
-                        <span class="card-date">{{ timeAgo(task.createdAt) }}</span>
-                        @if (task.status === 'Completed' && task.completedAt) {
+                      @if (task.status === 'Completed' && task.completedAt) {
+                        <div class="card-footer">
                           <span class="card-completed-badge">{{ 'board.done' | transloco }}</span>
-                        }
-                      </div>
+                        </div>
+                      }
                     </div>
                   </div>
                 }
 
-                @if (countFor(col.status) === 0) {
+                @if (filteredTasksFor(col.status).length === 0) {
                   <div class="column-empty">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/>
@@ -157,6 +203,16 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
         </div>
       }
     </div>
+
+    <!-- Task Detail Modal -->
+    @if (selectedTask()) {
+      <app-task-detail-modal
+        [task]="selectedTask()!"
+        [users]="users()"
+        (close)="selectedTask.set(null)"
+        (assigneeChange)="onAssignFromModal(selectedTask()!, $event)"
+      />
+    }
   `,
   styles: [`
     .board-page {
@@ -171,7 +227,7 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 1rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 1rem;
     }
 
     .board-title {
@@ -211,6 +267,65 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
       border-radius: 50%;
       flex-shrink: 0;
     }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.625rem 1rem;
+      background: var(--sf);
+      border: 1px solid var(--bds);
+      border-radius: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .filter-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--tx4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .filter-select {
+      background: var(--sf2);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      color: var(--tx);
+      font-size: 0.78rem;
+      padding: 0.25rem 0.5rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-check {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--tx3);
+      cursor: pointer;
+    }
+
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--bd);
+      color: var(--tx4);
+      border-radius: 6px;
+      padding: 0.25rem 0.625rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-ghost:hover { color: var(--tx); border-color: var(--tx3); }
 
     .board-error {
       background: var(--error-bg);
@@ -337,9 +452,7 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
 
     .task-card:active { cursor: grabbing; }
 
-    .task-card.dragging {
-      opacity: 1;
-    }
+    .task-card.dragging { opacity: 1; }
 
     .card-accent {
       width: 4px;
@@ -354,11 +467,47 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
       gap: 0.375rem;
     }
 
+    .card-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .card-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .card-view-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.6rem;
+      height: 1.6rem;
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--tx3);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .card-view-btn:hover {
+      background: rgba(16,185,129,0.1);
+      border-color: rgba(16,185,129,0.3);
+      color: #10b981;
+    }
+
     .card-task-name {
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--tx);
       line-height: 1.3;
+      flex: 1;
     }
 
     .card-meta {
@@ -380,13 +529,14 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
     .card-footer {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       margin-top: 0.125rem;
     }
 
     .card-date {
       font-size: 0.7rem;
       color: var(--tx3);
+      white-space: nowrap;
     }
 
     .card-completed-badge {
@@ -465,9 +615,7 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
       transition: border-color 0.15s;
     }
 
-    .assignee-control:focus-within {
-      border-color: var(--accent);
-    }
+    .assignee-control:focus-within { border-color: var(--accent); }
 
     .assignee-avatar {
       width: 1.375rem;
@@ -484,10 +632,7 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
       letter-spacing: 0.02em;
     }
 
-    .assignee-avatar.assigned {
-      background: var(--accent);
-      color: #fff;
-    }
+    .assignee-avatar.assigned { background: var(--accent); color: #fff; }
 
     .assignee-select {
       flex: 1;
@@ -504,15 +649,13 @@ const COLUMNS: { status: Status; label: string; labelKey: string; color: string;
       -webkit-appearance: none;
     }
 
-    .assignee-select option {
-      background: var(--sf);
-      color: var(--tx);
-    }
+    .assignee-select option { background: var(--sf); color: var(--tx); }
   `]
 })
 export class TaskBoardComponent implements OnInit {
   private taskBoardService = inject(TaskBoardService);
   private userService = inject(UserService);
+  private dir = inject(DirectionService);
 
   tasks = signal<TaskBoardItem[]>([]);
   users = signal<User[]>([]);
@@ -520,8 +663,32 @@ export class TaskBoardComponent implements OnInit {
   error = signal<string | null>(null);
   draggingId = signal<number | null>(null);
   draggingTask = signal<TaskBoardItem | null>(null);
+  selectedTask = signal<TaskBoardItem | null>(null);
+
+  // Filters
+  filterForm = '';
+  filterAssignee = '';
+  filterOverdue = false;
 
   columns = COLUMNS;
+
+  distinctForms = computed(() =>
+    [...new Set(this.tasks().map(t => t.formTitle))].sort()
+  );
+
+  distinctAssignees = computed(() =>
+    [...new Set(this.tasks().filter(t => t.assignedToName).map(t => t.assignedToName!))].sort()
+  );
+
+  isFiltered(): boolean {
+    return !!this.filterForm || !!this.filterAssignee || this.filterOverdue;
+  }
+
+  clearFilters() {
+    this.filterForm = '';
+    this.filterAssignee = '';
+    this.filterOverdue = false;
+  }
 
   ngOnInit() {
     this.load();
@@ -536,12 +703,31 @@ export class TaskBoardComponent implements OnInit {
     });
   }
 
+  filteredTasksFor(status: Status): TaskBoardItem[] {
+    return this.tasks().filter(t => {
+      if (t.status !== status) return false;
+      if (this.filterForm && t.formTitle !== this.filterForm) return false;
+      if (this.filterAssignee === '__unassigned__' && t.assignedToName) return false;
+      if (this.filterAssignee && this.filterAssignee !== '__unassigned__' && t.assignedToName !== this.filterAssignee) return false;
+      if (this.filterOverdue && !this.isOverdue(t)) return false;
+      return true;
+    });
+  }
+
+  countFor(status: Status): number {
+    return this.tasks().filter(t => t.status === status).length;
+  }
+
+  openModal(task: TaskBoardItem) {
+    if (this.draggingId()) return;
+    this.selectedTask.set(task);
+  }
+
   onAssign(task: TaskBoardItem, userId: number | null) {
     const prevUserId = task.assignedToUserId;
     const prevName = task.assignedToName;
     const user = userId ? this.users().find(u => u.userId === userId) ?? null : null;
 
-    // Optimistic update
     this.tasks.update(ts => ts.map(t =>
       t.submissionTaskId === task.submissionTaskId
         ? { ...t, assignedToUserId: userId, assignedToName: user?.name ?? null }
@@ -550,7 +736,6 @@ export class TaskBoardComponent implements OnInit {
 
     this.taskBoardService.assign(task.submissionTaskId, userId).subscribe({
       error: () => {
-        // Revert
         this.tasks.update(ts => ts.map(t =>
           t.submissionTaskId === task.submissionTaskId
             ? { ...t, assignedToUserId: prevUserId, assignedToName: prevName }
@@ -561,6 +746,12 @@ export class TaskBoardComponent implements OnInit {
     });
   }
 
+  onAssignFromModal(task: TaskBoardItem, userId: number | null) {
+    this.onAssign(task, userId);
+    const user = userId ? this.users().find(u => u.userId === userId) ?? null : null;
+    this.selectedTask.update(t => t ? { ...t, assignedToUserId: userId, assignedToName: user?.name ?? null } : t);
+  }
+
   isOverdue(task: TaskBoardItem): boolean {
     if (!task.dueDate || task.status === 'Completed') return false;
     return new Date(task.dueDate) < new Date();
@@ -569,7 +760,7 @@ export class TaskBoardComponent implements OnInit {
   isDueSoon(task: TaskBoardItem): boolean {
     if (!task.dueDate || task.status === 'Completed' || this.isOverdue(task)) return false;
     const diff = new Date(task.dueDate).getTime() - Date.now();
-    return diff < 48 * 60 * 60 * 1000; // within 48 hours
+    return diff < 48 * 60 * 60 * 1000;
   }
 
   formatDueDate(dateStr: string): string {
@@ -581,15 +772,6 @@ export class TaskBoardComponent implements OnInit {
     return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
   }
 
-  tasksFor(status: Status): TaskBoardItem[] {
-    return this.tasks().filter(t => t.status === status);
-  }
-
-  countFor(status: Status): number {
-    return this.tasks().filter(t => t.status === status).length;
-  }
-
-  // Drag-and-drop
   onDragStart(event: DragEvent, task: TaskBoardItem) {
     this.draggingId.set(task.submissionTaskId);
     this.draggingTask.set(task);
@@ -622,7 +804,6 @@ export class TaskBoardComponent implements OnInit {
     const task = this.draggingTask();
     if (!task || task.status === targetStatus) return;
 
-    // Optimistic update
     this.tasks.update(ts =>
       ts.map(t => t.submissionTaskId === task.submissionTaskId
         ? { ...t, status: targetStatus }
@@ -631,7 +812,6 @@ export class TaskBoardComponent implements OnInit {
 
     this.taskBoardService.updateStatus(task.submissionTaskId, targetStatus).subscribe({
       error: () => {
-        // Revert on failure
         this.tasks.update(ts =>
           ts.map(t => t.submissionTaskId === task.submissionTaskId
             ? { ...t, status: task.status }
@@ -640,6 +820,10 @@ export class TaskBoardComponent implements OnInit {
         this.error.set('Failed to update task status');
       }
     });
+  }
+
+  taskLabel(task: TaskBoardItem): string {
+    return (this.dir.isRtl() && task.taskNameAr) ? task.taskNameAr : task.taskName;
   }
 
   timeAgo(dateStr: string): string {

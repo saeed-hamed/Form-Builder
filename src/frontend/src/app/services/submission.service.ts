@@ -16,6 +16,10 @@ export class SubmissionService extends FormApiService {
     return this.post<ApiResponse<SubmissionResponse>>('/api/submissions', req).pipe(map(r => r.data));
   }
 
+  getById(submissionId: number) {
+    return this.get<ApiResponse<SubmissionResponse>>(`/api/submissions/${submissionId}`).pipe(map(r => r.data));
+  }
+
   getAll() {
     return this.get<ApiResponse<SubmissionResponse[]>>('/api/submissions').pipe(map(r => r.data));
   }
